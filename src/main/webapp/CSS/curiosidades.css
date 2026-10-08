@@ -1,0 +1,323 @@
+/* ============================================================
+   DAYNEIRA — curiosidades.css
+============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Baloo+2:wght@400;600;700;800&display=swap');
+
+:root {
+    --crema:     #FDF6EC;
+    --crema2:    #F4EBD8;
+    --marron:    #2C1A0E;
+    --ambar:     #C8854A;
+    --ambar2:    #E8A96A;
+    --pergamino: #E8D5B7;
+    --caoba:     #6B4226;
+    --suave:     #F9F2E7;
+    --muted:     #8B6E52;
+    --lila:      #9b6dff;
+    --lila2:     #c084fc;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Baloo 2', sans-serif;
+    background: var(--crema);
+    color: var(--marron);
+    min-height: 100vh;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 40px;
+    background: var(--marron);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+
+.navbar-logo a {
+    font-family: 'Playfair Display', serif;
+    color: var(--pergamino);
+    font-size: 22px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.user-menu-wrapper { position: relative; }
+
+.btn-username {
+    background: rgba(232,213,183,0.1);
+    border: 1px solid rgba(232,213,183,0.25);
+    color: var(--ambar2);
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 7px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-username:hover { background: rgba(232,213,183,0.2); }
+
+.user-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: white;
+    border: 1px solid var(--pergamino);
+    border-radius: 12px;
+    min-width: 220px;
+    box-shadow: 0 8px 32px rgba(44,26,14,0.15);
+    overflow: hidden;
+    z-index: 300;
+}
+
+.user-dropdown.abierto { display: block; }
+.dropdown-item { display: block; padding: 12px 18px; font-size: 14px; color: var(--marron); text-decoration: none; transition: background 0.15s; }
+.dropdown-item:hover { background: var(--suave); }
+.dropdown-sep { height: 1px; background: var(--pergamino); margin: 4px 0; }
+.dropdown-logout { color: #c0392b; }
+
+/* ── PAGE ── */
+.page-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+}
+
+.page-titulo {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    color: var(--marron);
+}
+
+.page-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+.btn-generar {
+    background: linear-gradient(135deg, #1a1025, #2d1f3d);
+    color: var(--lila2);
+    border: 1px solid var(--lila);
+    border-radius: 10px;
+    padding: 11px 22px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(155,109,255,0.25);
+}
+
+.btn-generar:hover {
+    box-shadow: 0 6px 24px rgba(155,109,255,0.4);
+    transform: translateY(-1px);
+}
+
+.btn-generar:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── CATEGORÍAS ── */
+.categorias {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+}
+
+.cat-btn {
+    background: white;
+    border: 1px solid var(--pergamino);
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cat-btn:hover { border-color: var(--ambar); color: var(--ambar); }
+.cat-btn.activo { background: var(--ambar); border-color: var(--ambar); color: white; font-weight: 700; }
+
+/* ── DATO DESTACADO ── */
+.dato-destacado {
+    background: linear-gradient(135deg, var(--marron), var(--caoba));
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.dato-destacado::before {
+    content: '✦';
+    position: absolute;
+    right: 24px; top: 16px;
+    font-size: 48px;
+    color: rgba(232,213,183,0.1);
+}
+
+.destacado-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ambar2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.destacado-texto {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--pergamino);
+    line-height: 1.6;
+    font-style: italic;
+}
+
+/* ── GRID ── */
+.curiosidades-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* ── CARD ── */
+.curiosidad-card {
+    background: white;
+    border: 1px solid var(--pergamino);
+    border-radius: 16px;
+    padding: 22px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.curiosidad-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--pergamino);
+    transition: background 0.3s;
+}
+
+.curiosidad-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(44,26,14,0.1);
+    border-color: var(--ambar);
+}
+
+.curiosidad-card:hover::before { background: var(--ambar); }
+
+.card-emoji { font-size: 32px; margin-bottom: 10px; display: block; }
+
+.card-cat {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ambar);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.curiosidad-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--marron);
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.curiosidad-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+/* ── RESULTADO IA ── */
+.ia-resultado {
+    margin-top: 40px;
+    background: linear-gradient(135deg, #0d0a14, #1a1025);
+    border: 1px solid rgba(155,109,255,0.3);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.ia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: var(--lila2);
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.ia-header button {
+    background: transparent;
+    border: none;
+    color: var(--lila2);
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.ia-header button:hover { opacity: 1; }
+
+.ia-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.ia-card {
+    background: rgba(155,109,255,0.08);
+    border: 1px solid rgba(155,109,255,0.2);
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.ia-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--lila2);
+    margin-bottom: 8px;
+}
+
+.ia-card p {
+    font-size: 13px;
+    color: rgba(232,224,240,0.8);
+    line-height: 1.6;
+}
+
+/* Ocultar cards filtradas */
+.curiosidad-card.oculta { display: none; }
+
+/* Card como enlace */
+.curiosidad-card {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.card-leer {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ambar);
+    transition: color 0.2s;
+}
+
+.curiosidad-card:hover .card-leer { color: var(--caoba); }

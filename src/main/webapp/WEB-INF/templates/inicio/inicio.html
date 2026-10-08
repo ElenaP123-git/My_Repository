@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira — Inicio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/CSS/inicio.css}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="navbar-logo">✦ Dayneira</div>
+    <div class="navbar-user">
+        <div class="user-menu-wrapper">
+            <button class="btn-username" onclick="toggleMenu()" id="btnUser">
+                <span th:text="${username}">artista</span> ▾
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="#" class="dropdown-item">👤 Información de la cuenta</a>
+                <a href="#" class="dropdown-item">✏️ Editar perfil y foto</a>
+                <a href="#" class="dropdown-item">➕ Agregar cuenta</a>
+                <a href="#" class="dropdown-item">🔄 Cambiar de cuenta</a>
+                <div class="dropdown-sep"></div>
+                <a th:href="@{/usuario/logout}" class="dropdown-item dropdown-logout">🚪 Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="nube-wrapper">
+        <div class="nube">
+            <span class="nube-estrellas">✦ ✧ ✦</span>
+            <h1 class="nube-titulo">Bienvenida a Dayneira</h1>
+            <p class="nube-subtitulo">Tu espacio para crear libros</p>
+        </div>
+        <div class="nube-bump nube-bump-1"></div>
+        <div class="nube-bump nube-bump-2"></div>
+        <div class="nube-bump nube-bump-3"></div>
+    </div>
+
+    <button class="btn-descubrir" id="btnDescubrir" onclick="revelarApp()">
+        Pulsa aquí ✨
+    </button>
+
+    <div class="descripcion-wrapper" id="descripcionWrapper">
+        <p class="descripcion-texto" id="descripcionTexto"></p>
+    </div>
+</section>
+
+<!-- SECCIONES -->
+<section class="secciones-wrapper" id="seccionesWrapper">
+    <div class="seccion-intro">
+        <span class="seccion-intro-num">Tu camino creativo</span>
+        <h2 class="seccion-intro-titulo">Todo lo que necesitas para crear tu libro</h2>
+        <p class="seccion-intro-sub">Sigue el orden y construye tu historia paso a paso</p>
+    </div>
+
+    <div class="secciones-grid">
+
+        <a th:href="@{/escribir/}" class="seccion-card card-primary">
+            <div class="seccion-icon">📖</div>
+            <div class="seccion-num">01</div>
+            <h3>Empieza a escribir</h3>
+            <p>El lienzo en blanco te espera. Crea y organiza los capítulos de tu libro.</p>
+            <span class="seccion-tag">Por aquí se empieza</span>
+        </a>
+
+        <a th:href="@{/personaje/}" class="seccion-card">
+            <div class="seccion-icon">👤</div>
+            <div class="seccion-num">02</div>
+            <h3>Crea tus personajes</h3>
+            <p>Dale vida a quienes habitarán tu historia. Diseña su aspecto, personalidad y pasado.</p>
+            <span class="seccion-tag">Construcción</span>
+        </a>
+
+        <a th:href="@{/mundo/}" class="seccion-card">
+            <div class="seccion-icon">🌍</div>
+            <div class="seccion-num">03</div>
+            <h3>Tu mundo y estética</h3>
+            <p>Define la época, el lugar, la atmósfera. El escenario donde todo ocurre.</p>
+            <span class="seccion-tag">Worldbuilding</span>
+        </a>
+
+        <a th:href="@{/onirea/}" class="seccion-card card-onirea">
+            <div class="seccion-icon">🌙</div>
+            <div class="seccion-num">04</div>
+            <h3>Habla con Onírea</h3>
+            <p>Tu IA creativa. Transforma ideas crudas en visiones poéticas.</p>
+            <span class="seccion-tag">IA Creativa</span>
+        </a>
+
+        <a th:href="@{/curiosidades/}" class="seccion-card">
+            <div class="seccion-icon">💡</div>
+            <div class="seccion-num">05</div>
+            <h3>Datos curiosos</h3>
+            <p>Hechos fascinantes sobre escritura, mitología y arte para encender tu creatividad.</p>
+            <span class="seccion-tag">Inspiración</span>
+        </a>
+
+        <a th:href="@{/dibujo/}" class="seccion-card">
+            <div class="seccion-icon">🎨</div>
+            <div class="seccion-num">06</div>
+            <h3>Crea tus imágenes</h3>
+            <p>Diseña portadas, ilustraciones y todo el arte visual de tu libro.</p>
+            <span class="seccion-tag">Arte</span>
+        </a>
+
+        <a th:href="@{/diario/}" class="seccion-card">
+            <div class="seccion-icon">📔</div>
+            <div class="seccion-num">07</div>
+            <h3>Diario de ideas</h3>
+            <p>Anota ideas sueltas, fragmentos y pensamientos antes de que escapen.</p>
+            <span class="seccion-tag">Organización</span>
+        </a>
+
+        <a th:href="@{/tips/}" class="seccion-card">
+            <div class="seccion-icon">📚</div>
+            <div class="seccion-num">08</div>
+            <h3>Estructura del libro</h3>
+            <p>Aprende a organizar tu libro: dedicatoria, prólogo, introducción, capítulos, epílogo y anexos.</p>
+            <span class="seccion-tag">Aprendizaje</span>
+        </a>
+
+        <a th:href="@{/mislibros/}" class="seccion-card card-carpeta">
+            <div class="seccion-icon">🗂️</div>
+            <div class="seccion-num">09</div>
+            <h3>Mis libros</h3>
+            <p>Todos tus libros guardados. Personajes, notas, imágenes y capítulos de cada uno.</p>
+            <span class="seccion-tag">Tu biblioteca</span>
+        </a>
+
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-col">
+            <span class="footer-logo">✦ Dayneira</span>
+            <span class="footer-year">© 2026</span>
+        </div>
+        <div class="footer-col">
+            <span class="footer-label">Contacto</span>
+            <a href="mailto:yinheren12@gmail.com" class="footer-link">yinheren12@gmail.com</a>
+            <span class="footer-sub">Sugerencias y dudas</span>
+        </div>
+        <div class="footer-col">
+            <span class="footer-label">Compartir</span>
+            <button class="footer-btn" onclick="compartir()">🔗 Compartir Dayneira</button>
+        </div>
+        <div class="footer-col">
+            <span class="footer-label">Idioma</span>
+            <select class="footer-select" onchange="cambiarIdioma(this.value)">
+                <option value="es">🇪🇸 Español</option>
+                <option value="en">🇬🇧 English</option>
+            </select>
+        </div>
+        <div class="footer-col">
+            <span class="footer-label">Apariencia</span>
+            <button class="footer-btn" id="btnModoOscuro" onclick="toggleModoOscuro()">🌙 Modo oscuro</button>
+        </div>
+    </div>
+</footer>
+
+<script th:src="@{/JS/inicio.js}"></script>
+</body>
+</html>

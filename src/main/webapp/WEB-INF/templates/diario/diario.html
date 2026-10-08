@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira — Mi Diario</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Baloo+2:wght@400;600;700;800&family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#f5ede0;--card:white;--marron:#2C1A0E;--ambar:#C8854A;--ambar2:#E8A96A;--pergamino:#E8D5B7;--caoba:#6B4226;--muted:#8B6E52;--cuaderno-bg:#fdf9f4;--linea-color:rgba(200,133,74,.18);--texto:var(--marron);--nav-bg:var(--marron);}
+        body.modo-oscuro{--bg:#1a1008;--card:#2a1a0a;--cuaderno-bg:#1e1208;--texto:#f0e8d8;--linea-color:rgba(232,213,183,.12);--muted:#a08060;--nav-bg:#0d0602;}
+        body.modo-tranquilo{--bg:#daeeda;--card:#eef7ee;--cuaderno-bg:#f2faf2;--ambar:#4a7a4a;--ambar2:#6aaa6a;--caoba:#2a5a2a;--muted:#5a7a5a;--linea-color:rgba(80,130,80,.14);--nav-bg:#2a4a2a;}
+        body.modo-noche{--bg:#060612;--card:#0e0e24;--cuaderno-bg:#090918;--texto:#c8c8f0;--ambar:#6060cc;--ambar2:#8080ee;--caoba:#4040aa;--muted:#6060aa;--linea-color:rgba(96,96,200,.14);--nav-bg:#06060f;}
+        body.modo-sepia{--bg:#e8dcc0;--card:#f4eccc;--cuaderno-bg:#faf4dc;--ambar:#8a6a2a;--ambar2:#aa8a4a;--caoba:#6a4a1a;--muted:#8a7050;--linea-color:rgba(120,90,40,.14);--nav-bg:#4a3010;}
+        body.modo-tranquilo::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.08;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ctext y='60' font-size='40'%3E🌿%3C/text%3E%3Ctext x='120' y='140' font-size='32'%3E🍃%3C/text%3E%3Ctext x='20' y='170' font-size='28'%3E🌱%3C/text%3E%3C/svg%3E");background-size:200px 200px;}
+        body.modo-noche::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 15% 20%,rgba(255,255,200,.7) 1px,transparent 1px),radial-gradient(circle at 35% 60%,rgba(255,255,220,.6) 1.5px,transparent 1.5px),radial-gradient(circle at 55% 15%,rgba(255,255,200,.8) 1px,transparent 1px),radial-gradient(circle at 70% 40%,rgba(255,255,230,.5) 2px,transparent 2px),radial-gradient(circle at 85% 70%,rgba(255,255,200,.7) 1px,transparent 1px),radial-gradient(circle at 25% 85%,rgba(255,255,220,.6) 1.5px,transparent 1.5px),radial-gradient(circle at 90% 10%,rgba(255,255,200,.7) 1px,transparent 1px);background-size:100% 100%;}
+        body.modo-noche::after{content:'🌙';position:fixed;top:70px;right:30px;font-size:60px;opacity:.05;pointer-events:none;z-index:0;}
+        body.modo-sepia::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Ctext y='80' font-size='50'%3E📜%3C/text%3E%3Ctext x='180' y='200' font-size='40'%3E✒️%3C/text%3E%3C/svg%3E");background-size:300px 300px;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Baloo 2',sans-serif;background:var(--bg);min-height:100vh;overflow-x:hidden;color:var(--texto);transition:background .3s,color .3s;}
+        .navbar{display:flex;justify-content:space-between;align-items:center;padding:0 24px;background:var(--nav-bg);position:fixed;top:0;left:0;right:0;z-index:600;height:52px;gap:12px;}
+        .nav-logo{font-family:'Playfair Display',serif;color:var(--pergamino);font-size:19px;font-weight:700;text-decoration:none;}
+        .nav-titulo{font-family:'Playfair Display',serif;font-size:16px;color:var(--ambar2);font-weight:700;}
+        .nav-acciones{display:flex;gap:8px;align-items:center;}
+        .nav-btn{background:rgba(232,213,183,.12);border:1px solid rgba(232,213,183,.25);color:var(--pergamino);padding:5px 13px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;text-decoration:none;transition:background .2s;white-space:nowrap;}
+        .nav-btn:hover{background:rgba(232,213,183,.25);}
+        .buscador-wrap{position:relative;}
+        .buscador{background:rgba(232,213,183,.1);border:1px solid rgba(232,213,183,.2);color:var(--pergamino);padding:5px 32px 5px 12px;border-radius:9px;font-size:12px;font-family:'Baloo 2',sans-serif;outline:none;width:160px;transition:width .2s;}
+        .buscador:focus{width:220px;background:rgba(232,213,183,.18);}
+        .buscador::placeholder{color:rgba(232,213,183,.4);}
+        .buscador-icono{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.5;pointer-events:none;}
+        .search-results{position:absolute;top:calc(100% + 6px);right:0;background:var(--nav-bg);border:1px solid rgba(232,213,183,.2);border-radius:10px;min-width:280px;max-height:300px;overflow-y:auto;z-index:700;display:none;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+        .search-results.visible{display:block;}
+        .search-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid rgba(232,213,183,.08);transition:background .15s;}
+        .search-item:hover{background:rgba(232,213,183,.1);}
+        .search-item-titulo{font-size:13px;font-weight:700;color:var(--pergamino);}
+        .search-item-match{font-size:11px;color:rgba(232,213,183,.5);margin-top:2px;}
+        .search-empty{padding:14px;font-size:12px;color:rgba(232,213,183,.4);text-align:center;}
+        .modo-menu{position:absolute;bottom:60px;right:0;background:var(--nav-bg);border:1px solid rgba(232,213,183,.2);border-radius:12px;padding:8px;z-index:700;display:none;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+        .modo-menu.visible{display:block;}
+        .modo-item{padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--pergamino);display:flex;align-items:center;gap:8px;transition:background .15s;font-family:'Baloo 2',sans-serif;}
+        .modo-item:hover{background:rgba(232,213,183,.1);}
+        .page{padding-top:52px;min-height:100vh;position:relative;z-index:1;}
+        .page-header{padding:28px 28px 14px;}
+        .page-header h1{font-family:'Playfair Display',serif;font-size:30px;color:var(--texto);}
+        .page-header p{font-size:12px;color:var(--muted);font-style:italic;margin-top:2px;}
+        .humor-strip{margin:0 28px 20px;background:var(--card);border-radius:18px;padding:16px 22px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(44,26,14,.07);border:1px solid rgba(200,133,74,.12);flex-wrap:wrap;}
+        .humor-titulo{font-size:13px;font-weight:700;color:var(--caoba);white-space:nowrap;}
+        .humor-emojis{display:flex;gap:8px;flex:1;flex-wrap:wrap;}
+        .humor-btn{background:none;border:2px solid transparent;border-radius:10px;padding:5px 10px;font-size:20px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:1px;}
+        .humor-btn span{font-size:9px;color:var(--muted);font-family:'Baloo 2',sans-serif;}
+        .humor-btn:hover{background:rgba(200,133,74,.08);border-color:var(--ambar);}
+        .humor-btn.activo{background:rgba(200,133,74,.12);border-color:var(--ambar);}
+        .cal-humor{margin:0 28px 24px;background:var(--card);border-radius:18px;padding:16px 22px;box-shadow:0 2px 12px rgba(44,26,14,.07);border:1px solid rgba(200,133,74,.12);}
+        .cal-humor-titulo{font-size:11px;font-weight:700;color:var(--caoba);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;}
+        .cal-humor-dias{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+        .cal-dia{text-align:center;}
+        .cal-dia-nombre{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;margin-bottom:4px;}
+        .cal-dia-emoji{font-size:20px;min-height:26px;display:flex;align-items:center;justify-content:center;}
+        .cal-dia-num{font-size:9px;color:var(--muted);margin-top:1px;}
+        .cal-frase{margin-top:10px;font-size:11px;color:var(--muted);font-style:italic;text-align:center;padding-top:8px;border-top:1px solid rgba(200,133,74,.12);line-height:1.6;}
+        .posits-section{padding:0 28px 80px;}
+        .posits-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;}
+        .posit{border-radius:3px;padding:18px;position:relative;cursor:pointer;transition:transform .2s,box-shadow .2s;min-height:170px;display:flex;flex-direction:column;box-shadow:3px 3px 10px rgba(0,0,0,.13);}
+        .posit:hover{transform:translateY(-4px);box-shadow:5px 8px 20px rgba(0,0,0,.18);}
+        .posit::after{content:'';position:absolute;bottom:0;right:0;width:0;height:0;border-style:solid;border-width:0 0 18px 18px;border-color:transparent transparent rgba(0,0,0,.1) transparent;}
+        .posit-fecha{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.45;margin-bottom:6px;}
+        .posit-titulo{font-family:'Caveat',cursive;font-size:19px;font-weight:700;margin-bottom:6px;line-height:1.2;color:var(--marron);}
+        .posit-preview{font-family:'Kalam',cursive;font-size:12px;line-height:1.6;opacity:.7;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;color:var(--marron);}
+        .posit-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+        .posit-humor{font-size:16px;}.posit-mas{font-size:10px;opacity:.45;}
+        .posit-borrar-grid{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;font-size:13px;opacity:.3;transition:opacity .2s;padding:2px 4px;}
+        .posit-borrar-grid:hover{opacity:.8;}
+        .posit-nuevo{border:2px dashed rgba(107,66,38,.2);background:rgba(255,255,255,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;min-height:170px;border-radius:3px;transition:all .2s;}
+        .posit-nuevo:hover{background:rgba(255,255,255,.7);border-color:var(--ambar);}
+        .posit-nuevo-icon{font-size:36px;opacity:.35;}.posit-nuevo-txt{font-size:13px;color:var(--muted);font-weight:700;}
+        .p-amarillo{background:#fff9c4;}.p-rosa{background:#fce4ec;}.p-verde{background:#e8f5e9;}
+        .p-azul{background:#e3f2fd;}.p-lila{background:#ede7f6;}.p-salmon{background:#fbe9e7;}.p-menta{background:#e0f2f1;}
+        .cuaderno-overlay{position:fixed;inset:0;background:rgba(10,4,0,.88);z-index:800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
+        .cuaderno-overlay.visible{display:flex;}
+        .cuaderno-wrap{width:min(920px,96vw);height:calc(100vh - 32px);display:flex;flex-direction:column;border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);}
+        .cuaderno-nav{background:var(--marron);padding:10px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+        .cuaderno-nav-titulo{font-family:'Playfair Display',serif;color:var(--pergamino);font-size:15px;font-weight:700;flex:1;}
+        .cuaderno-tabs{display:flex;gap:3px;}
+        .ctab{background:rgba(232,213,183,.1);border:1px solid rgba(232,213,183,.12);color:rgba(232,213,183,.55);padding:4px 11px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .2s;}
+        .ctab:hover{background:rgba(232,213,183,.18);}
+        .ctab.activo{background:rgba(232,213,183,.22);color:var(--pergamino);border-color:rgba(232,213,183,.35);}
+        .cuaderno-cerrar{background:rgba(232,213,183,.1);border:none;color:var(--pergamino);width:28px;height:28px;border-radius:7px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .cuaderno-cerrar:hover{background:rgba(232,213,183,.22);}
+        .cuaderno-body{flex:1;display:flex;overflow:hidden;}
+        .pegatinas-panel{width:58px;background:#f0e8d8;border-right:2px dashed rgba(107,66,38,.18);display:flex;flex-direction:column;align-items:center;padding:10px 4px;gap:6px;overflow-y:auto;flex-shrink:0;}
+        .pegatinas-titulo{font-size:7px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:2px;}
+        .pegatina-item{font-size:22px;cursor:grab;user-select:none;transition:transform .15s;padding:3px;}
+        .pegatina-item:hover{transform:scale(1.25);}
+        .cuaderno-pagina{flex:1;overflow-y:auto;position:relative;background:var(--cuaderno-bg);}
+        .cuaderno-pagina.lineas-fondo{background-image:repeating-linear-gradient(transparent,transparent calc(1.9em - 1px),var(--linea-color) calc(1.9em - 1px),var(--linea-color) 1.9em);}
+        .cuaderno-pagina.cuadricula-fondo{background-image:repeating-linear-gradient(var(--linea-color) 0,var(--linea-color) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,var(--linea-color) 0,var(--linea-color) 1px,transparent 1px,transparent 28px);}
+        .cuaderno-pagina.puntos-fondo{background-image:radial-gradient(circle,var(--linea-color) 1.3px,transparent 1.3px);background-size:22px 22px;}
+        .pagina-contenido{min-height:100%;padding:26px 34px 26px 54px;position:relative;}
+        .espiral{position:absolute;left:0;top:0;bottom:0;width:30px;background:repeating-linear-gradient(to bottom,transparent,transparent 33px,rgba(107,66,38,.2) 33px,rgba(107,66,38,.2) 35px);display:flex;flex-direction:column;align-items:center;padding-top:16px;gap:18px;}
+        .espiral-circulo{width:16px;height:16px;border-radius:50%;border:2.5px solid #c8b898;background:#f0e8d8;flex-shrink:0;}
+        .pag-titulo{font-family:'Playfair Display',serif;font-size:20px;color:var(--texto);margin-bottom:18px;padding-bottom:8px;border-bottom:1.5px solid rgba(200,133,74,.2);}
+        .editor-libre{width:100%;min-height:480px;outline:none;font-family:'Kalam',cursive;font-size:16px;color:var(--texto);line-height:2.0;word-break:break-word;caret-color:var(--ambar);}
+        .editor-libre:empty::before{content:"Escribe aquí lo que sientas...";opacity:.28;pointer-events:none;font-style:italic;}
+        .horario-config{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+        .horario-config label{font-size:11px;color:var(--muted);font-weight:700;}
+        .horario-config input[type=number]{width:52px;padding:3px 6px;border:1px solid rgba(200,133,74,.25);border-radius:6px;font-size:12px;background:rgba(255,255,255,.5);color:var(--texto);outline:none;text-align:center;}
+        .btn-horario{background:var(--ambar);color:white;border:none;padding:4px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;}
+        .tabla-horario{width:100%;border-collapse:collapse;font-size:11px;}
+        .tabla-horario th{background:rgba(200,133,74,.12);padding:5px 3px;text-align:center;font-weight:700;color:var(--caoba);border:1px solid rgba(200,133,74,.18);font-size:10px;}
+        .tabla-horario td{border:1px solid rgba(200,133,74,.12);padding:0;height:32px;vertical-align:top;}
+        .tabla-horario td.hora-col{font-size:9px;color:var(--muted);text-align:right;padding:3px 5px;background:rgba(200,133,74,.05);white-space:nowrap;font-weight:700;}
+        .celda-horario{width:100%;height:100%;padding:2px 4px;outline:none;font-family:'Kalam',cursive;font-size:11px;color:var(--texto);border:none;background:transparent;resize:none;overflow:hidden;}
+        .cal-mensual-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+        .cal-mensual-header h3{font-family:'Playfair Display',serif;font-size:17px;color:var(--texto);}
+        .btn-cal{background:none;border:1px solid rgba(200,133,74,.25);color:var(--caoba);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:13px;}
+        .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+        .cal-dia-header{text-align:center;font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;padding:3px 0;}
+        .cal-celda{min-height:56px;border:1px solid rgba(200,133,74,.12);border-radius:5px;padding:3px;background:rgba(255,255,255,.4);}
+        .cal-celda.otro-mes{opacity:.3;}.cal-celda.hoy{border-color:var(--ambar);background:rgba(200,133,74,.07);}
+        .cal-celda-num{font-size:10px;font-weight:700;color:var(--caoba);margin-bottom:2px;}
+        .cal-celda-nota{font-size:9px;font-family:'Kalam',cursive;color:var(--texto);line-height:1.3;outline:none;width:100%;border:none;background:transparent;resize:none;overflow:hidden;}
+        .herramientas{background:#f0e8d8;border-left:2px dashed rgba(107,66,38,.18);width:52px;display:flex;flex-direction:column;align-items:center;padding:10px 4px;gap:7px;flex-shrink:0;}
+        .h-btn{background:none;border:1px solid transparent;border-radius:7px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;color:var(--caoba);}
+        .h-btn:hover{background:rgba(200,133,74,.14);border-color:rgba(200,133,74,.28);}
+        .h-btn.activo{background:rgba(200,133,74,.18);border-color:var(--ambar);}
+        .h-sep{width:28px;height:1px;background:rgba(107,66,38,.18);}
+        .h-label{font-size:7px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+        .color-posit-chip{width:20px;height:20px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0;}
+        .color-posit-chip:hover{border-color:var(--ambar);transform:scale(1.15);}
+        .peg-en-pagina{position:absolute;font-size:28px;cursor:move;user-select:none;z-index:10;line-height:1;}
+        .posit-en-pagina{position:absolute;z-index:10;border-radius:3px;box-shadow:3px 4px 12px rgba(0,0,0,.2);width:170px;min-height:40px;display:flex;flex-direction:column;}
+        .posit-en-pagina.seleccionado{outline:2px solid rgba(200,133,74,.8);}
+        .posit-texto{flex:1;padding:10px;font-family:'Caveat',cursive;font-size:15px;line-height:1.5;color:#1a0805;outline:none;word-break:break-word;cursor:text;}
+        .posit-texto:empty::before{content:'Escribe aquí...';opacity:.35;pointer-events:none;font-style:italic;}
+        .posit-handle{height:14px;background:transparent;cursor:se-resize;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;font-size:11px;color:transparent;border-radius:0 0 3px 3px;flex-shrink:0;transition:color .2s;}
+        .posit-en-pagina:hover .posit-handle{color:rgba(0,0,0,.25);}
+        .posit-drag-bar{height:14px;background:transparent;cursor:move;border-radius:3px 3px 0 0;flex-shrink:0;display:flex;align-items:center;padding:0 6px;font-size:9px;color:transparent;user-select:none;transition:background .2s,color .2s;}
+        .posit-en-pagina:hover .posit-drag-bar{background:rgba(0,0,0,.06);color:rgba(0,0,0,.25);}
+        .toggle-encuadre{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+        .toggle-switch{width:28px;height:16px;background:rgba(107,66,38,.25);border-radius:8px;position:relative;transition:background .2s;}
+        .toggle-switch.on{background:var(--ambar);}
+        .toggle-switch::after{content:'';position:absolute;width:12px;height:12px;background:white;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+        .toggle-switch.on::after{left:14px;}
+        .modal-diario{position:fixed;inset:0;background:rgba(10,4,0,.85);z-index:900;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+        .modal-diario.visible{display:flex;}
+        .mdbox{background:var(--card);border-radius:18px;padding:34px 38px;max-width:400px;width:92%;box-shadow:0 30px 80px rgba(0,0,0,.4);}
+        .mdtitulo{font-family:'Playfair Display',serif;font-size:21px;color:var(--texto);margin-bottom:5px;}
+        .mdsub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+        .md-campo{margin-bottom:13px;}
+        .md-label{font-size:11px;font-weight:700;color:var(--caoba);display:block;margin-bottom:5px;}
+        .md-input{width:100%;padding:10px 13px;border:2px solid var(--pergamino);border-radius:9px;font-size:14px;font-family:'Playfair Display',serif;background:var(--card);color:var(--texto);outline:none;transition:border-color .2s;}
+        .md-input:focus{border-color:var(--ambar);}
+        .md-colores{display:flex;gap:7px;flex-wrap:wrap;}
+        .md-color{width:30px;height:30px;border-radius:5px;cursor:pointer;border:3px solid transparent;transition:all .2s;}
+        .md-color:hover,.md-color.activo{border-color:var(--ambar);transform:scale(1.1);}
+        .md-btns{display:flex;gap:8px;margin-top:18px;}
+        .md-btn-ok{flex:1;background:var(--caoba);color:white;border:none;padding:11px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;}
+        .md-btn-cancel{background:none;border:1px solid var(--pergamino);color:var(--muted);padding:11px 16px;border-radius:9px;font-size:13px;cursor:pointer;font-family:'Baloo 2',sans-serif;}
+        ::-webkit-scrollbar{width:4px;}
+        ::-webkit-scrollbar-thumb{background:rgba(107,66,38,.25);border-radius:2px;}
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a href="/DayneiraApp/inicio/" class="nav-logo">✦ Dayneira</a>
+    <div class="nav-acciones">
+        <div class="buscador-wrap">
+            <input class="buscador" id="buscador" placeholder="Buscar en mis diarios..." oninput="buscar(this.value)">
+            <span class="buscador-icono">🔍</span>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+        <a href="/DayneiraApp/dibujo/" class="nav-btn">🖼️ Añadir imágenes</a>
+    </div>
+</nav>
+<div class="page">
+    <div class="page-header"><h1>📔 Mi Diario</h1><p>Tu espacio personal para organizarte, sentirte y crear.</p></div>
+    <div class="humor-strip">
+        <div class="humor-titulo">¿Cómo te sientes hoy? ✨</div>
+        <div class="humor-emojis">
+            <button class="humor-btn" id="hb-feliz" onclick="setHumor('😊','feliz')">😊<span>Feliz</span></button>
+            <button class="humor-btn" id="hb-normal" onclick="setHumor('😐','normal')">😐<span>Normal</span></button>
+            <button class="humor-btn" id="hb-triste" onclick="setHumor('😢','triste')">😢<span>Triste</span></button>
+            <button class="humor-btn" id="hb-enfadado" onclick="setHumor('😤','enfadado')">😤<span>Enfadada</span></button>
+            <button class="humor-btn" id="hb-inspirada" onclick="setHumor('✨','inspirada')">✨<span>Inspirada</span></button>
+            <button class="humor-btn" id="hb-cansada" onclick="setHumor('😴','cansada')">😴<span>Cansada</span></button>
+        </div>
+    </div>
+    <div class="cal-humor">
+        <div class="cal-humor-titulo">🌙 Cómo te has sentido esta semana</div>
+        <div class="cal-humor-dias" id="calHumorDias"></div>
+        <div class="cal-frase">"Dependiendo de tu estado de ánimo, tus escritos serán distintos — confía en ti en las buenas y en las malas." 💛</div>
+    </div>
+    <div class="posits-section"><div class="posits-grid" id="positGrid"></div></div>
+</div>
+<div style="position:fixed;bottom:24px;right:24px;z-index:700;">
+    <div class="modo-menu" id="modoMenu">
+        <div class="modo-item" onclick="setModo('')">☀️ Normal</div>
+        <div class="modo-item" onclick="setModo('modo-oscuro')">🌑 Oscuro</div>
+        <div class="modo-item" onclick="setModo('modo-tranquilo')">🌿 Tranquilo</div>
+        <div class="modo-item" onclick="setModo('modo-noche')">🌙 Noche</div>
+        <div class="modo-item" onclick="setModo('modo-sepia')">📜 Sepia</div>
+    </div>
+    <button onclick="toggleModoMenu()" style="width:52px;height:52px;border-radius:50%;background:var(--caoba);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 6px 20px rgba(107,66,38,.4);display:flex;align-items:center;justify-content:center;">🎨</button>
+</div>
+<div class="cuaderno-overlay" id="cuadernoOverlay">
+    <div class="cuaderno-wrap">
+        <div class="cuaderno-nav">
+            <span class="cuaderno-nav-titulo" id="cuadernoTitulo"></span>
+            <div class="cuaderno-tabs">
+                <button class="ctab activo" onclick="cambiarPagina('libre')">📝 Notas</button>
+                <button class="ctab" onclick="cambiarPagina('semanal')">📅 Semana</button>
+                <button class="ctab" onclick="cambiarPagina('mensual')">🗓️ Mes</button>
+            </div>
+            <button class="cuaderno-cerrar" onclick="cerrarCuaderno()">✕</button>
+        </div>
+        <div class="cuaderno-body">
+            <div class="pegatinas-panel">
+                <div class="pegatinas-titulo">Stickers</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'⭐')">⭐</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🌸')">🌸</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🦋')">🦋</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🌙')">🌙</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'✨')">✨</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🌺')">🌺</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'📚')">📚</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🎀')">🎀</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🍄')">🍄</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🌈')">🌈</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'💫')">💫</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🍀')">🍀</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🦄')">🦄</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'💎')">💎</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🔮')">🔮</div>
+                <div class="pegatina-item" draggable="true" ondragstart="dragPeg(event,'🌻')">🌻</div>
+            </div>
+            <div class="cuaderno-pagina" id="cuadernoPagina" ondrop="dropEnPagina(event)" ondragover="event.preventDefault()">
+                <div class="espiral">
+                    <div class="espiral-circulo"></div><div class="espiral-circulo"></div><div class="espiral-circulo"></div>
+                    <div class="espiral-circulo"></div><div class="espiral-circulo"></div><div class="espiral-circulo"></div>
+                    <div class="espiral-circulo"></div><div class="espiral-circulo"></div><div class="espiral-circulo"></div>
+                    <div class="espiral-circulo"></div><div class="espiral-circulo"></div><div class="espiral-circulo"></div>
+                </div>
+                <div class="pagina-contenido" id="paginaContenido"></div>
+            </div>
+            <div class="herramientas">
+                <div class="h-label">Fondo</div>
+                <button class="h-btn activo" id="hbBlanco" onclick="setFondo('')" title="Sin fondo">☐</button>
+                <button class="h-btn" id="hbLineas" onclick="setFondo('lineas-fondo')" title="Líneas">☰</button>
+                <button class="h-btn" id="hbCuad" onclick="setFondo('cuadricula-fondo')" title="Cuadrícula">⊞</button>
+                <button class="h-btn" id="hbPuntos" onclick="setFondo('puntos-fondo')" title="Puntos">∷</button>
+                <div class="h-sep"></div>
+                <div class="h-label">Post-it</div>
+                <div class="color-posit-chip" style="background:#fff9c4" onclick="anadirPostit('#fff9c4')"></div>
+                <div class="color-posit-chip" style="background:#fce4ec" onclick="anadirPostit('#fce4ec')"></div>
+                <div class="color-posit-chip" style="background:#e3f2fd" onclick="anadirPostit('#e3f2fd')"></div>
+                <div class="color-posit-chip" style="background:#e8f5e9" onclick="anadirPostit('#e8f5e9')"></div>
+                <div class="color-posit-chip" style="background:#ede7f6" onclick="anadirPostit('#ede7f6')"></div>
+                <div class="h-sep"></div>
+                <div class="h-label">Borrar</div>
+                <button class="h-btn" id="btnBorrar" onclick="borrarSeleccionado()" title="Borrar seleccionado">🗑️</button>
+                <div class="h-sep"></div>
+                <div class="h-label">Texto</div>
+                <div class="toggle-encuadre" onclick="toggleEncuadre()" title="Texto alrededor del posit">
+                    <div class="toggle-switch" id="toggleEnc"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-diario" id="modalDiario">
+    <div class="mdbox">
+        <div class="mdtitulo">📔 Nuevo diario</div>
+        <div class="mdsub">Dale un nombre y un color a tu nuevo diario.</div>
+        <div class="md-campo"><label class="md-label">Nombre</label><input type="text" class="md-input" id="mdNombre" placeholder="Ej: Mi diario de escritura..." maxlength="80"></div>
+        <div class="md-campo">
+            <label class="md-label">Color del post-it</label>
+            <div class="md-colores">
+                <div class="md-color activo" id="mc0" style="background:#fff9c4" onclick="selColorDiario('#fff9c4','mc0')"></div>
+                <div class="md-color" id="mc1" style="background:#fce4ec" onclick="selColorDiario('#fce4ec','mc1')"></div>
+                <div class="md-color" id="mc2" style="background:#e3f2fd" onclick="selColorDiario('#e3f2fd','mc2')"></div>
+                <div class="md-color" id="mc3" style="background:#e8f5e9" onclick="selColorDiario('#e8f5e9','mc3')"></div>
+                <div class="md-color" id="mc4" style="background:#ede7f6" onclick="selColorDiario('#ede7f6','mc4')"></div>
+                <div class="md-color" id="mc5" style="background:#fbe9e7" onclick="selColorDiario('#fbe9e7','mc5')"></div>
+                <div class="md-color" id="mc6" style="background:#e0f2f1" onclick="selColorDiario('#e0f2f1','mc6')"></div>
+            </div>
+        </div>
+        <div class="md-btns">
+            <button class="md-btn-cancel" onclick="cerrarModalDiario()">Cancelar</button>
+            <button class="md-btn-ok" onclick="crearDiario()">Crear ✨</button>
+        </div>
+    </div>
+</div>
+<script>
+    var diarios  = JSON.parse(localStorage.getItem('dyn_diarios')||'[]');
+    var humores  = JSON.parse(localStorage.getItem('dyn_humores')||'{}');
+    var diarioActivo=null, colorDiarioSel='#fff9c4', fondoActual='', dragEmoji=null;
+    var mesActual=new Date().getMonth(), anioActual=new Date().getFullYear();
+    var paginaActual='libre', elSeleccionado=null;
+    var COLORES=['p-amarillo','p-rosa','p-verde','p-azul','p-lila','p-salmon','p-menta'];
+    var encuadreActivo=false, positsDatos=[];
+
+    function guardar(){ localStorage.setItem('dyn_diarios',JSON.stringify(diarios)); }
+    function guardarH(){ localStorage.setItem('dyn_humores',JSON.stringify(humores)); }
+
+    // ── Modos ──
+    function toggleModoMenu(){ document.getElementById('modoMenu').classList.toggle('visible'); }
+    function setModo(cls){ document.body.className=cls; localStorage.setItem('dyn_modo',cls); document.getElementById('modoMenu').classList.remove('visible'); }
+    document.addEventListener('click',function(e){
+        if(!e.target.closest('[onclick="toggleModoMenu()"]')&&!e.target.closest('#modoMenu')) document.getElementById('modoMenu').classList.remove('visible');
+        if(!e.target.closest('.buscador-wrap')) document.getElementById('searchResults').classList.remove('visible');
+    });
+    var mg=localStorage.getItem('dyn_modo'); if(mg) document.body.className=mg;
+
+    // ── Buscador ──
+    function buscar(q){
+        var sr=document.getElementById('searchResults'); q=q.trim().toLowerCase();
+        if(!q){sr.classList.remove('visible');return;}
+        var res=[];
+        diarios.forEach(function(d,i){
+            var txt=(d.paginas&&d.paginas.libre?d.paginas.libre.replace(/<[^>]*>/g,''):'').toLowerCase();
+            var tit=(d.nombre||'').toLowerCase();
+            if(tit.includes(q)||txt.includes(q)){
+                var idx=txt.indexOf(q), match=idx!==-1?'...'+txt.substring(Math.max(0,idx-20),idx+50)+'...':'';
+                res.push({i:i,nombre:d.nombre,match:match});
+            }
+        });
+        sr.innerHTML=res.length?res.map(function(r){return '<div class="search-item" onclick="abrirCuaderno('+r.i+')"><div class="search-item-titulo">'+r.nombre+'</div>'+(r.match?'<div class="search-item-match">'+r.match+'</div>':'')+'</div>';}).join(''):'<div class="search-empty">Sin resultados</div>';
+        sr.classList.add('visible');
+    }
+
+    // ── Grid ──
+    function renderGrid(){
+        var grid=document.getElementById('positGrid'); grid.innerHTML='';
+        var nuevo=document.createElement('div'); nuevo.className='posit posit-nuevo';
+        nuevo.innerHTML='<div class="posit-nuevo-icon">＋</div><div class="posit-nuevo-txt">Nuevo diario</div>';
+        nuevo.onclick=abrirModalNuevo; grid.appendChild(nuevo);
+        diarios.forEach(function(d,i){
+            var cls=d.color?'':COLORES[i%COLORES.length], bg=d.color?'background:'+d.color+';':'';
+            var rot=[-2,-1,0,1,2][i%5];
+            var preview=d.paginas&&d.paginas.libre?d.paginas.libre.replace(/<[^>]*>/g,'').substring(0,120):'';
+            var fecha=d.fecha?new Date(d.fecha).toLocaleDateString('es-ES',{day:'numeric',month:'short'}):'';
+            var el=document.createElement('div'); el.className='posit '+cls; el.style.cssText=bg+'transform:rotate('+rot+'deg)';
+            el.innerHTML='<button class="posit-borrar-grid" title="Borrar">✕</button><div class="posit-fecha">'+fecha+'</div><div class="posit-titulo">'+d.nombre+'</div><div class="posit-preview">'+(preview||'(vacío)')+'</div><div class="posit-footer"><span class="posit-humor">'+(d.humorHoy||'')+'</span><span class="posit-mas">Abrir →</span></div>';
+            el.querySelector('.posit-borrar-grid').addEventListener('click',function(e){e.stopPropagation();if(confirm('¿Borrar "'+d.nombre+'"?')){diarios.splice(i,1);guardar();renderGrid();}});
+            el.addEventListener('click',function(){abrirCuaderno(i);});
+            grid.appendChild(el);
+        });
+    }
+
+    // ── Humor ──
+    function renderCalHumor(){
+        var cont=document.getElementById('calHumorDias'), hoy=new Date(), noms=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'], html='';
+        for(var i=0;i<7;i++){var d=new Date(hoy),ds=hoy.getDay()||7;d.setDate(hoy.getDate()-(ds-1)+i);var key=d.toISOString().slice(0,10),emoji=humores[key]||'',esHoy=key===hoy.toISOString().slice(0,10);html+='<div class="cal-dia"><div class="cal-dia-nombre" style="'+(esHoy?'color:var(--ambar)':'')+'">'+noms[i]+'</div><div class="cal-dia-emoji">'+(emoji||'·')+'</div><div class="cal-dia-num" style="'+(esHoy?'color:var(--ambar);font-weight:700':'')+'">'+d.getDate()+'</div></div>';}
+        cont.innerHTML=html;
+    }
+    function setHumor(emoji,id){var hoy=new Date().toISOString().slice(0,10);humores[hoy]=emoji;guardarH();document.querySelectorAll('.humor-btn').forEach(function(b){b.classList.remove('activo');});document.getElementById('hb-'+id).classList.add('activo');renderCalHumor();if(diarioActivo!==null){diarios[diarioActivo].humorHoy=emoji;guardar();}}
+    function cargarHumorHoy(){var hoy=new Date().toISOString().slice(0,10),emoji=humores[hoy];if(!emoji)return;var m={'😊':'feliz','😐':'normal','😢':'triste','😤':'enfadado','✨':'inspirada','😴':'cansada'};var id=m[emoji];if(id)document.getElementById('hb-'+id).classList.add('activo');}
+
+    // ── Modal nuevo ──
+    function abrirModalNuevo(){document.getElementById('modalDiario').classList.add('visible');document.getElementById('mdNombre').value='';setTimeout(function(){document.getElementById('mdNombre').focus();},80);}
+    function cerrarModalDiario(){document.getElementById('modalDiario').classList.remove('visible');}
+    function selColorDiario(c,id){colorDiarioSel=c;document.querySelectorAll('.md-color').forEach(function(el){el.classList.remove('activo');});document.getElementById(id).classList.add('activo');}
+    function crearDiario(){
+        var n=document.getElementById('mdNombre').value.trim(); if(!n){document.getElementById('mdNombre').focus();return;}
+        diarios.push({nombre:n,color:colorDiarioSel,fecha:new Date().toISOString(),paginas:{libre:'',semanal:{},mensual:{}},decPorPagina:{},fondo:''});
+        guardar();cerrarModalDiario();renderGrid();abrirCuaderno(diarios.length-1);
+    }
+
+    // ── Cuaderno ──
+    function abrirCuaderno(i){
+            diarioActivo=i;elSeleccionado=null;encuadreActivo=false;positsDatos=[];
+            var d=diarios[i];if(!d.decPorPagina)d.decPorPagina={};
+            document.getElementById('cuadernoTitulo').textContent=d.nombre;
+            fondoActual=d.fondo||'';paginaActual='libre';actualizarTabs('libre');
+            setFondo(fondoActual,true);
+            // Restaurar estado del toggle desde el diario guardado
+            encuadreActivo = !!(diarios[i].encuadre);
+            var sw=document.getElementById('toggleEnc');
+            if(sw) sw.classList.toggle('on', encuadreActivo);
+            document.getElementById('cuadernoOverlay').classList.add('visible');
+            renderPagina();restaurarDecoraciones();
+            // Si el encuadre estaba activo, reactivarlo tras restaurar
+            if(encuadreActivo) setTimeout(function(){ activarEncuadre(); }, 60);
+        }
+
+    function guardarPaginaActual(){
+        if(diarioActivo===null) return;
+        // Si encuadre activo, desactivar temporalmente para guardar posits en posición absoluta
+        // IMPORTANTE: NO modificar encuadreActivo aquí — solo el usuario puede cambiarlo
+        if(encuadreActivo) desactivarEncuadre();
+        var ed=document.querySelector('.editor-libre');
+        if(ed) diarios[diarioActivo].paginas.libre=ed.innerHTML;
+        guardarDecoraciones();
+        // Reactivar encuadre si seguía activo (solo si no cambiamos de página)
+        if(encuadreActivo) activarEncuadre();
+    }
+
+    function cambiarPagina(tipo){
+        // Antes de cambiar: desactivar encuadre temporalmente para guardar bien
+        if(encuadreActivo) desactivarEncuadre();
+        var ed=document.querySelector('.editor-libre');
+        if(ed) diarios[diarioActivo].paginas.libre=ed.innerHTML;
+        guardarDecoraciones();
+        // Cambiar página
+        paginaActual=tipo; elSeleccionado=null;
+        actualizarTabs(tipo);
+        // Mostrar/ocultar toggle Texto solo en Notas
+        var tw=document.querySelector('.toggle-encuadre');
+        var s1=tw?tw.previousElementSibling:null;
+        var s2=s1?s1.previousElementSibling:null;
+        if(tw){ var v=(tipo==='libre'); tw.style.display=v?'':'none'; if(s1)s1.style.display=v?'':'none'; if(s2)s2.style.display=v?'':'none'; }
+        renderPagina();
+        restaurarDecoraciones();
+        // Si volvemos a Notas y el encuadre sigue activo, reactivarlo
+        if(tipo==='libre' && encuadreActivo){
+            setTimeout(function(){ activarEncuadre(); }, 50);
+        }
+    }
+
+    function cerrarCuaderno(){
+            guardarPaginaActual();
+            document.getElementById('cuadernoOverlay').classList.remove('visible');
+            diarioActivo=null;elSeleccionado=null;renderGrid();
+        }
+
+    function actualizarTabs(activo){
+        var tabs=document.querySelectorAll('.ctab'),m={libre:0,semanal:1,mensual:2};
+        tabs.forEach(function(t){t.classList.remove('activo');});
+        if(tabs[m[activo]])tabs[m[activo]].classList.add('activo');
+    }
+
+    function setFondo(cls,noGuardar){
+        var pag=document.getElementById('cuadernoPagina');
+        pag.classList.remove('lineas-fondo','cuadricula-fondo','puntos-fondo');
+        if(cls)pag.classList.add(cls);
+        fondoActual=cls;
+        ['hbBlanco','hbLineas','hbCuad','hbPuntos'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('activo');});
+        var m={'':'hbBlanco','lineas-fondo':'hbLineas','cuadricula-fondo':'hbCuad','puntos-fondo':'hbPuntos'};
+        if(m[cls]&&document.getElementById(m[cls]))document.getElementById(m[cls]).classList.add('activo');
+        if(!noGuardar&&diarioActivo!==null){diarios[diarioActivo].fondo=cls;guardar();}
+    }
+
+    // ── Render páginas ──
+    function renderPagina(){
+        var pc=document.getElementById('paginaContenido'), d=diarios[diarioActivo];
+        pc.innerHTML='';
+        if(paginaActual==='libre') renderLibre(pc,d);
+        else if(paginaActual==='semanal') renderSemanal(pc,d);
+        else if(paginaActual==='mensual') renderMensual(pc,d);
+    }
+
+    function renderLibre(pc,d){
+        var t=document.createElement('div');t.className='pag-titulo';t.textContent='📝 '+d.nombre;pc.appendChild(t);
+        var ed=document.createElement('div');ed.className='editor-libre';ed.contentEditable=true;
+        ed.innerHTML=d.paginas.libre||'';
+        ed.addEventListener('input',function(){diarios[diarioActivo].paginas.libre=this.innerHTML;guardar();});
+        pc.appendChild(ed);
+        setTimeout(function(){ed.focus();},100);
+    }
+
+    function renderSemanal(pc,d){
+        var t=document.createElement('div');t.className='pag-titulo';t.textContent='📅 Horario semanal';pc.appendChild(t);
+        var cfg=document.createElement('div');cfg.className='horario-config';
+        cfg.innerHTML='<label>Desde:</label><input type="number" id="horaIni" min="0" max="23" value="'+(d.horaIni||8)+'"><label>Hasta:</label><input type="number" id="horaFin" min="1" max="24" value="'+(d.horaFin||22)+'"><button class="btn-horario" onclick="regenerarHorario()">Aplicar</button>';
+        pc.appendChild(cfg);
+        var wrap=document.createElement('div');wrap.id='tablaHorarioWrap';pc.appendChild(wrap);
+        generarTablaHorario(d);
+    }
+    function generarTablaHorario(d){
+        var wrap=document.getElementById('tablaHorarioWrap');if(!wrap)return;
+        var ini=d.horaIni||8,fin=d.horaFin||22,dias=['','Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+        var html='<table class="tabla-horario"><thead><tr>';
+        dias.forEach(function(dia){html+='<th>'+dia+'</th>';});
+        html+='</tr></thead><tbody>';
+        for(var h=ini;h<fin;h++){
+            html+='<tr><td class="hora-col">'+h+':00</td>';
+            for(var dia=1;dia<=7;dia++){var key='h'+h+'d'+dia,val=(d.paginas.semanal&&d.paginas.semanal[key])||'';html+='<td><textarea class="celda-horario" data-key="'+key+'" oninput="guardarCeldaSemanal(this)">'+val+'</textarea></td>';}
+            html+='</tr>';
+        }
+        html+='</tbody></table>';wrap.innerHTML=html;
+    }
+    function regenerarHorario(){var d=diarios[diarioActivo];d.horaIni=+document.getElementById('horaIni').value;d.horaFin=+document.getElementById('horaFin').value;guardar();generarTablaHorario(d);}
+    function guardarCeldaSemanal(el){if(!diarios[diarioActivo].paginas.semanal)diarios[diarioActivo].paginas.semanal={};diarios[diarioActivo].paginas.semanal[el.dataset.key]=el.value;guardar();}
+
+    function renderMensual(pc,d){
+        var t=document.createElement('div');t.className='pag-titulo';t.textContent='🗓️ Planificador mensual';pc.appendChild(t);
+        var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        var cal=document.createElement('div');
+        cal.innerHTML='<div class="cal-mensual-header"><button class="btn-cal" onclick="cambiarMes(-1)">‹</button><h3 id="calMesTitulo">'+meses[mesActual]+' '+anioActual+'</h3><button class="btn-cal" onclick="cambiarMes(1)">›</button></div><div class="cal-grid" id="calGridMensual"></div>';
+        pc.appendChild(cal);generarCalMensual(d);
+    }
+    function generarCalMensual(d){
+        var grid=document.getElementById('calGridMensual');if(!grid)return;
+        var dias=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+        var html=dias.map(function(d){return '<div class="cal-dia-header">'+d+'</div>';}).join('');
+        var primer=new Date(anioActual,mesActual,1),ds=primer.getDay()||7,diasMes=new Date(anioActual,mesActual+1,0).getDate(),hoyStr=new Date().toISOString().slice(0,10);
+        for(var i=1;i<ds;i++)html+='<div class="cal-celda otro-mes"></div>';
+        for(var dia=1;dia<=diasMes;dia++){
+            var f=anioActual+'-'+String(mesActual+1).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
+            var esHoy=f===hoyStr,nota=(d.paginas.mensual&&d.paginas.mensual[f])||'',humor=humores[f]||'';
+            html+='<div class="cal-celda'+(esHoy?' hoy':'')+'"><div class="cal-celda-num">'+dia+(humor?' '+humor:'')+'</div><textarea class="cal-celda-nota" data-fecha="'+f+'" oninput="guardarNotaMensual(this)">'+nota+'</textarea></div>';
+        }
+        grid.innerHTML=html;
+    }
+    function cambiarMes(delta){mesActual+=delta;if(mesActual<0){mesActual=11;anioActual--;}if(mesActual>11){mesActual=0;anioActual++;}var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];var t=document.getElementById('calMesTitulo');if(t)t.textContent=meses[mesActual]+' '+anioActual;generarCalMensual(diarios[diarioActivo]);}
+    function guardarNotaMensual(el){if(!diarios[diarioActivo].paginas.mensual)diarios[diarioActivo].paginas.mensual={};diarios[diarioActivo].paginas.mensual[el.dataset.fecha]=el.value;guardar();}
+
+    // ── Decoraciones por página ──
+    function guardarDecoraciones(){
+        if(diarioActivo===null)return;
+        if(!diarios[diarioActivo].decPorPagina)diarios[diarioActivo].decPorPagina={};
+        var decs=[],pc=document.getElementById('paginaContenido');
+        pc.querySelectorAll(':scope > .peg-en-pagina').forEach(function(el){
+            decs.push({tipo:'peg',emoji:el.textContent,x:parseFloat(el.style.left),y:parseFloat(el.style.top)});
+        });
+        pc.querySelectorAll('.posit-en-pagina').forEach(function(el){
+            var area=el.querySelector('.posit-texto'),pegs=[];
+            el.querySelectorAll('.peg-en-pagina').forEach(function(p){pegs.push({emoji:p.textContent,x:parseFloat(p.style.left),y:parseFloat(p.style.top)});});
+            decs.push({tipo:'posit',txt:area?area.innerHTML:'',bg:el.style.background,x:parseFloat(el.style.left),y:parseFloat(el.style.top),w:el.offsetWidth,h:el.offsetHeight,pegs:pegs});
+        });
+        diarios[diarioActivo].decPorPagina[paginaActual]=decs;
+        guardar();
+    }
+
+    function restaurarDecoraciones(){
+        if(diarioActivo===null)return;
+        var decs=((diarios[diarioActivo].decPorPagina||{})[paginaActual])||[];
+        decs.forEach(function(d){
+            if(d.tipo==='peg') crearPegatina(d.emoji,d.x,d.y);
+            else{
+                var p=crearPostit(d.bg,d.txt||'',d.x,d.y,d.w||170,d.h||140);
+                if(d.pegs&&p) d.pegs.forEach(function(pg){crearPegatina(pg.emoji,pg.x,pg.y,p);});
+            }
+        });
+    }
+
+    // ── Drag pegatinas ──
+    function dragPeg(e,emoji){dragEmoji=emoji;e.dataTransfer.setData('text/plain',emoji);}
+    function dropEnPagina(e){
+        e.preventDefault();
+        var emoji=dragEmoji||e.dataTransfer.getData('text/plain');if(!emoji)return;
+        var pag=document.getElementById('cuadernoPagina'),rect=pag.getBoundingClientRect();
+        crearPegatina(emoji,e.clientX-rect.left,e.clientY-rect.top+pag.scrollTop);
+        guardarDecoraciones();dragEmoji=null;
+    }
+
+    // ── Crear pegatina ──
+    function crearPegatina(emoji,x,y,padre){
+        var el=document.createElement('div');
+        el.className='peg-en-pagina';el.textContent=emoji;
+        el.style.left=x+'px';el.style.top=y+'px';el.style.zIndex='20';
+        el.addEventListener('click',function(e){e.stopPropagation();seleccionar(el);});
+        el.addEventListener('mousedown',function(e){
+            e.preventDefault();e.stopPropagation();seleccionar(el);
+            var contenedor=el.parentElement,ox=el.offsetLeft,oy=el.offsetTop,sx=e.clientX,sy=e.clientY;
+            function mv(ev){el.style.left=(ox+(ev.clientX-sx))+'px';el.style.top=(oy+(ev.clientY-sy))+'px';}
+            function mu(ev){
+                document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',mu);
+                el.style.display='none';var bajo=document.elementFromPoint(ev.clientX,ev.clientY);el.style.display='';
+                var posit=bajo?bajo.closest('.posit-en-pagina'):null;
+                if(posit&&posit!==contenedor){var pr=posit.getBoundingClientRect();posit.appendChild(el);el.style.left=(ev.clientX-pr.left)+'px';el.style.top=(ev.clientY-pr.top)+'px';el.style.position='absolute';}
+                else if(!posit&&contenedor!==document.getElementById('paginaContenido')){var cr=contenedor.getBoundingClientRect(),pcEl=document.getElementById('paginaContenido'),pr2=pcEl.getBoundingClientRect();pcEl.appendChild(el);el.style.left=(parseFloat(el.style.left)+(cr.left-pr2.left))+'px';el.style.top=(parseFloat(el.style.top)+(cr.top-pr2.top))+'px';}
+                guardarDecoraciones();
+            }
+            document.addEventListener('mousemove',mv);document.addEventListener('mouseup',mu);
+        });
+        (padre||document.getElementById('paginaContenido')).appendChild(el);
+    }
+
+    // ── Crear posit ──
+    function anadirPostit(color){var x=80+Math.random()*200,y=60+Math.random()*150;crearPostit(color,'',x,y,170,140);guardarDecoraciones();}
+    function crearPostit(bg,txt,x,y,w,h){
+        var wrap=document.createElement('div');
+        wrap.className='posit-en-pagina';
+        wrap.style.cssText='background:'+bg+';left:'+x+'px;top:'+y+'px;width:'+(w||170)+'px;';
+        var dragBar=document.createElement('div');dragBar.className='posit-drag-bar';dragBar.textContent='⋮⋮⋮ arrastra aquí';
+        dragBar.addEventListener('mousedown',function(e){
+            e.preventDefault();seleccionar(wrap);
+            var ox=wrap.offsetLeft,oy=wrap.offsetTop,sx=e.clientX,sy=e.clientY;
+            function mv(ev){wrap.style.left=(ox+(ev.clientX-sx))+'px';wrap.style.top=(oy+(ev.clientY-sy))+'px';}
+            function mu(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',mu);guardarDecoraciones();}
+            document.addEventListener('mousemove',mv);document.addEventListener('mouseup',mu);
+        });
+        var area=document.createElement('div');area.className='posit-texto';area.contentEditable=true;
+        if(txt)area.innerHTML=txt;
+        area.addEventListener('input',guardarDecoraciones);
+        area.addEventListener('mousedown',function(e){e.stopPropagation();});
+        var handle=document.createElement('div');handle.className='posit-handle';handle.textContent='⤡';
+        handle.addEventListener('mousedown',function(e){
+            e.stopPropagation();e.preventDefault();
+            var sx=e.clientX,sy=e.clientY,sw=wrap.offsetWidth,sh=area.offsetHeight;
+            function rm(ev){wrap.style.width=Math.max(60,sw+(ev.clientX-sx))+'px';area.style.minHeight=Math.max(20,sh+(ev.clientY-sy))+'px';}
+            function ru(){document.removeEventListener('mousemove',rm);document.removeEventListener('mouseup',ru);guardarDecoraciones();}
+            document.addEventListener('mousemove',rm);document.addEventListener('mouseup',ru);
+        });
+        wrap.appendChild(dragBar);wrap.appendChild(area);wrap.appendChild(handle);
+        wrap.addEventListener('click',function(e){if(e.target===wrap||e.target===dragBar||e.target===handle)seleccionar(wrap);});
+        document.getElementById('paginaContenido').appendChild(wrap);
+        return wrap;
+    }
+
+    // ── Selección y borrado ──
+    function seleccionar(el){if(elSeleccionado&&elSeleccionado!==el)elSeleccionado.style.outline='';elSeleccionado=el;el.style.outline='2px solid rgba(200,133,74,.8)';}
+    function borrarSeleccionado(){if(elSeleccionado){elSeleccionado.remove();elSeleccionado=null;guardarDecoraciones();}}
+    document.getElementById('cuadernoPagina').addEventListener('mousedown',function(e){
+        var btnBorrar=document.getElementById('btnBorrar');
+        if(btnBorrar&&btnBorrar.contains(e.target))return;
+        if(elSeleccionado&&elSeleccionado.contains(e.target))return;
+        if(elSeleccionado){elSeleccionado.style.outline='';elSeleccionado=null;}
+    });
+
+    // ── Encuadre texto ──
+    function toggleEncuadre(){
+        encuadreActivo=!encuadreActivo;
+        document.getElementById('toggleEnc').classList.toggle('on',encuadreActivo);
+        if(encuadreActivo) activarEncuadre(); else desactivarEncuadre();
+        // Guardar estado del toggle en el diario
+        if(diarioActivo!==null){ diarios[diarioActivo].encuadre=encuadreActivo; guardar(); }
+    }
+    function activarEncuadre(){
+        var ed=document.querySelector('.editor-libre'),pc=document.getElementById('paginaContenido');
+        if(!ed||!pc)return;
+        positsDatos=[];
+        Array.from(pc.querySelectorAll('.posit-en-pagina')).forEach(function(p){
+            var left=parseFloat(p.style.left)||0,top=parseFloat(p.style.top)||0,w=p.offsetWidth,h=p.offsetHeight;
+            positsDatos.push({el:p,left:left,top:top,width:w,height:h});
+            if(left<ed.offsetWidth/2){p.style.float='left';p.style.margin='4px 14px 6px 0';}
+            else{p.style.float='right';p.style.margin='4px 0 6px 14px';}
+            p.style.position='relative';p.style.left='';p.style.top='';p.style.zIndex='5';
+            ed.insertBefore(p,ed.firstChild);
+        });
+    }
+    function desactivarEncuadre(){
+        var pc=document.getElementById('paginaContenido');
+        positsDatos.forEach(function(d){
+            var p=d.el;p.style.float='';p.style.margin='';p.style.position='absolute';
+            p.style.left=d.left+'px';p.style.top=d.top+'px';p.style.zIndex='10';
+            pc.appendChild(p);
+        });
+        positsDatos=[];
+    }
+
+    // ── Init ──
+    renderGrid();renderCalHumor();cargarHumorHoy();
+    document.getElementById('mdNombre').addEventListener('keydown',function(e){if(e.key==='Enter')crearDiario();});
+</script>
+</body>
+</html>

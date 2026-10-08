@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira — Onírea</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/CSS/onirea.css}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="navbar-logo"><a th:href="@{/inicio/}">✦ Dayneira</a></div>
+    <div class="navbar-user">
+        <div class="user-menu-wrapper">
+            <button class="btn-username" onclick="toggleMenu()">
+                <span th:text="${username}">artista</span> ▾
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="#" class="dropdown-item">👤 Información de la cuenta</a>
+                <a href="#" class="dropdown-item">✏️ Editar perfil y foto</a>
+                <div class="dropdown-sep"></div>
+                <a th:href="@{/usuario/logout}" class="dropdown-item dropdown-logout">🚪 Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="onirea-layout">
+
+    <!-- PANEL IZQUIERDO — presentación y formulario -->
+    <aside class="panel-izq">
+
+        <!-- Presentación de Onírea -->
+        <div class="onirea-intro">
+            <div class="onirea-avatar">🌙</div>
+            <h1 class="onirea-nombre">Onírea</h1>
+            <p class="onirea-desc">
+                Soy una IA especializada en enriquecer las ideas de los artistas.<br><br>
+                Dime lo que tienes en mente — una frase, una imagen, una emoción — y yo la expandiré en varios párrafos para que encuentres el que más se parece a lo que imaginas.<br><br>
+                <strong>No invento nada.</strong> Solo trabajo con lo que tú me das.
+            </p>
+        </div>
+
+        <!-- Formulario -->
+        <div class="formulario-wrapper">
+            <div class="campo">
+                <label>Tu idea ✍️</label>
+                <textarea id="inputIdea" rows="4"
+                          placeholder="Ej: dos almas gemelas se reencuentran después de mil años..."></textarea>
+            </div>
+
+            <div class="campo">
+                <label>Elige un estilo 🎭</label>
+                <div class="estilos-grid" id="estilosGrid">
+                    <button class="estilo-btn activo" data-estilo="poetico">🌸 Poético</button>
+                    <button class="estilo-btn" data-estilo="oscuro">🌑 Oscuro</button>
+                    <button class="estilo-btn" data-estilo="epico">⚔️ Épico</button>
+                    <button class="estilo-btn" data-estilo="romantico">💫 Romántico</button>
+                    <button class="estilo-btn" data-estilo="misterioso">🔮 Misterioso</button>
+                    <button class="estilo-btn" data-estilo="melancolico">🍂 Melancólico</button>
+                </div>
+            </div>
+
+            <button class="btn-enviar" id="btnEnviar" onclick="enviarIdea()">
+                Expandir mi idea ✨
+            </button>
+
+            <p class="aviso-onirea">
+                Recomendamos utilizar esta herramienta sola y exclusivamente cuando no sepas cómo expresar una idea con tus palabras.
+            </p>
+
+            <p class="aviso-onirea">
+                Prioriza siempre tu propia voz y la forma única en que eliges expresarte.
+            </p>
+
+        </div>
+    </aside>
+
+    <!-- PANEL DERECHO — conversación -->
+    <main class="panel-der">
+        <div class="chat-header">
+            <span class="chat-titulo">Conversación con Onírea</span>
+            <button class="btn-limpiar" onclick="limpiarChat()">🗑 Limpiar</button>
+        </div>
+
+        <div class="chat-mensajes" id="chatMensajes">
+            <!-- Mensaje de bienvenida -->
+            <div class="mensaje mensaje-onirea">
+                <div class="mensaje-avatar">🌙</div>
+                <div class="mensaje-burbuja">
+                    <p>Hola, artista. Estoy aquí para ayudarte a dar forma a lo que llevas dentro.</p>
+                    <p>Escribe tu idea en el panel de la izquierda, elige el estilo que más se ajuste a tu visión, y yo crearé varias versiones para que encuentres la que hace que digas <em>"sí, eso es exactamente lo que quería decir"</em>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicador de escritura -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="mensaje-avatar">🌙</div>
+            <div class="typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/JS/onirea.js}"></script>
+</body>
+</html>

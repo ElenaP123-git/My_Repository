@@ -1,0 +1,129 @@
+/* DAYNEIRA — CSS base */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap');
+
+:root {
+    --oscuro:  #1a1025;
+    --acento:  #9b6dff;
+    --acento2: #c084fc;
+    --texto:   #e8e0f0;
+    --muted:   #9d8fb0;
+    --error:   #ff6b8a;
+    --ok:      #6bffb8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Lato', sans-serif;
+    background: var(--oscuro);
+    color: var(--texto);
+    min-height: 100vh;
+}
+
+.auth-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 30% 40%, #2d1f3d 0%, #1a1025 70%);
+}
+
+.auth-card {
+    background: rgba(45, 31, 61, 0.8);
+    border: 1px solid rgba(155, 109, 255, 0.3);
+    border-radius: 16px;
+    padding: 40px 48px;
+    width: 420px;
+    max-width: 95vw;
+}
+
+.auth-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--acento2);
+    margin-bottom: 4px;
+}
+
+.auth-subtitulo {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-style: italic;
+}
+
+.campo { margin-bottom: 16px; }
+
+.campo label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.campo input {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(26, 16, 37, 0.8);
+    border: 1px solid rgba(155, 109, 255, 0.3);
+    border-radius: 8px;
+    color: var(--texto);
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.campo input:focus { border-color: var(--acento); }
+.campo input::placeholder { color: var(--muted); }
+
+.btn-auth {
+    width: 100%;
+    padding: 12px;
+    background: var(--acento);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-auth:hover  { background: var(--acento2); }
+.btn-auth:active { transform: scale(0.98); }
+
+.auth-link {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 20px;
+    text-align: center;
+}
+
+.auth-link a { color: var(--acento2); text-decoration: none; font-weight: 700; }
+.auth-link a:hover { text-decoration: underline; }
+
+.alerta {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.alerta-error {
+    background: rgba(255, 107, 138, 0.15);
+    border: 1px solid rgba(255, 107, 138, 0.4);
+    color: var(--error);
+}
+
+.alerta-ok {
+    background: rgba(107, 255, 184, 0.1);
+    border: 1px solid rgba(107, 255, 184, 0.3);
+    color: var(--ok);
+}

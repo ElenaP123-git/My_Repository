@@ -1,0 +1,112 @@
+/* ============================================================
+   AÑADIR AL FINAL DE curiosidades.css — Panel de detalle
+============================================================ */
+
+/* Fondo oscuro al abrir el panel */
+.detalle-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(44, 26, 14, 0.5);
+    z-index: 400;
+    backdrop-filter: blur(2px);
+}
+.detalle-overlay.activo { display: block; }
+
+/* Panel lateral */
+.detalle-panel {
+    position: fixed;
+    top: 0;
+    right: -520px;
+    width: 480px;
+    max-width: 95vw;
+    height: 100vh;
+    background: var(--crema);
+    z-index: 500;
+    padding: 40px 36px;
+    overflow-y: auto;
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -8px 0 40px rgba(44,26,14,0.2);
+}
+.detalle-panel.activo { right: 0; }
+
+/* Botón cerrar */
+.detalle-cerrar {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.detalle-cerrar:hover { background: var(--crema2); color: var(--marron); }
+
+/* Contenido del panel */
+.detalle-panel-emoji {
+    font-size: 48px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.detalle-panel-cat {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ambar);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.detalle-panel-titulo {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: var(--marron);
+    line-height: 1.3;
+    margin-bottom: 20px;
+}
+
+.detalle-sep {
+    height: 1px;
+    background: var(--pergamino);
+    margin-bottom: 20px;
+}
+
+.detalle-panel-texto {
+    font-size: 15px;
+    color: var(--marron);
+    line-height: 1.8;
+    margin-bottom: 28px;
+}
+
+/* Caja de reflexión */
+.detalle-reflexion {
+    background: linear-gradient(135deg, var(--marron), var(--caoba));
+    border-radius: 14px;
+    padding: 20px 22px;
+}
+
+.reflexion-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ambar2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.reflexion-texto {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--pergamino);
+    line-height: 1.7;
+    font-style: italic;
+}
+
+/* Cursor pointer en las cards */
+.curiosidad-card { cursor: pointer; }

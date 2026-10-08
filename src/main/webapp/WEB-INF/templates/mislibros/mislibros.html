@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira — Mis libros</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/DayneiraApp/CSS/mislibros.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-logo"><a href="/DayneiraApp/inicio/">✦ Dayneira</a></div>
+    <div class="navbar-user">
+        <div class="user-menu-wrapper">
+            <button class="btn-username" onclick="toggleMenu()">
+                <span id="spanUsername">...</span> ▾
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="#" class="dropdown-item">👤 Información de la cuenta</a>
+                <div class="dropdown-sep"></div>
+                <a href="/DayneiraApp/usuario/logout" class="dropdown-item dropdown-logout">🚪 Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <div class="page-header">
+        <div class="header-izq">
+            <h1 class="page-titulo">🗂️ Mis libros</h1>
+            <p class="page-sub">Todos tus proyectos literarios en un solo lugar</p>
+        </div>
+        <button class="btn-nuevo" onclick="abrirModalNuevo()">+ Nuevo libro</button>
+    </div>
+
+    <div class="filtros">
+        <button class="filtro-btn activo" data-filtro="todos" onclick="filtrar(this)">Todos</button>
+        <button class="filtro-btn" data-filtro="borrador" onclick="filtrar(this)">Borrador</button>
+        <button class="filtro-btn" data-filtro="en_proceso" onclick="filtrar(this)">En proceso</button>
+        <button class="filtro-btn" data-filtro="pausado" onclick="filtrar(this)">Pausado</button>
+        <button class="filtro-btn" data-filtro="terminado" onclick="filtrar(this)">Terminado</button>
+    </div>
+
+    <div class="libros-lista" id="librosLista">
+        <p style="text-align:center;color:#8B6E52;padding:40px;font-style:italic">Cargando tus libros...</p>
+    </div>
+</div>
+
+<!-- MODAL NUEVO -->
+<div class="modal-overlay" id="modalNuevo" onclick="cerrarModalSiOverlay(event,'modalNuevo')">
+    <div class="modal">
+        <h2 class="modal-titulo">✨ Nuevo libro</h2>
+        <form id="formNuevo" onsubmit="crearLibro(event)">
+            <div class="campo">
+                <label>Título *</label>
+                <input type="text" id="nuevoTitulo" placeholder="El nombre de tu historia..." required>
+            </div>
+            <div class="campo">
+                <label>Género</label>
+                <select id="nuevoGenero">
+                    <option value="">Sin género</option>
+                    <option>Fantasía</option><option>Romance</option>
+                    <option>Ciencia ficción</option><option>Terror</option>
+                    <option>Misterio</option><option>Drama</option>
+                    <option>Aventura</option><option>Otro</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Descripción</label>
+                <textarea id="nuevoDesc" rows="3" placeholder="De qué va tu historia..."></textarea>
+            </div>
+            <div class="campo">
+                <label>Color de portada</label>
+                <div class="colores-grid">
+                    <div class="color-opt activo" data-color="#9b6dff" style="background:#9b6dff" onclick="selColor(this)"></div>
+                    <div class="color-opt" data-color="#C8854A" style="background:#C8854A" onclick="selColor(this)"></div>
+                    <div class="color-opt" data-color="#2d6a4f" style="background:#2d6a4f" onclick="selColor(this)"></div>
+                    <div class="color-opt" data-color="#c62828" style="background:#c62828" onclick="selColor(this)"></div>
+                    <div class="color-opt" data-color="#1565c0" style="background:#1565c0" onclick="selColor(this)"></div>
+                    <div class="color-opt" data-color="#4a148c" style="background:#4a148c" onclick="selColor(this)"></div>
+                    <div class="color-opt" data-color="#1a1025" style="background:#1a1025" onclick="selColor(this)"></div>
+                    <div class="color-opt" data-color="#880e4f" style="background:#880e4f" onclick="selColor(this)"></div>
+                </div>
+                <input type="hidden" id="colorPortadaInput" value="#9b6dff">
+            </div>
+            <div class="campo">
+                <label>Emoji de portada</label>
+                <div class="emojis-grid">
+                    <span class="emoji-opt activo" onclick="selEmoji(this)">📖</span>
+                    <span class="emoji-opt" onclick="selEmoji(this)">🌙</span>
+                    <span class="emoji-opt" onclick="selEmoji(this)">⚔️</span>
+                    <span class="emoji-opt" onclick="selEmoji(this)">🌹</span>
+                    <span class="emoji-opt" onclick="selEmoji(this)">🔮</span>
+                    <span class="emoji-opt" onclick="selEmoji(this)">🦋</span>
+                    <span class="emoji-opt" onclick="selEmoji(this)">🌊</span>
+                    <span class="emoji-opt" onclick="selEmoji(this)">✨</span>
+                </div>
+                <input type="hidden" id="emojiPortadaInput" value="📖">
+            </div>
+            <p id="errorNuevo" style="color:#c0392b;font-size:13px;display:none"></p>
+            <div class="modal-btns">
+                <button type="submit" class="btn-modal-ok">Crear libro</button>
+                <button type="button" class="btn-modal-cancel" onclick="cerrarModal('modalNuevo')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal-overlay" id="modalEditar" onclick="cerrarModalSiOverlay(event,'modalEditar')">
+    <div class="modal">
+        <h2 class="modal-titulo">✏️ Editar libro</h2>
+        <form id="formEditar" onsubmit="editarLibro(event)">
+            <input type="hidden" id="editId">
+            <div class="campo">
+                <label>Título *</label>
+                <input type="text" id="editTitulo" required>
+            </div>
+            <div class="campo">
+                <label>Género</label>
+                <select id="editGenero">
+                    <option value="">Sin género</option>
+                    <option>Fantasía</option><option>Romance</option>
+                    <option>Ciencia ficción</option><option>Terror</option>
+                    <option>Misterio</option><option>Drama</option>
+                    <option>Aventura</option><option>Otro</option>
+                </select>
+            </div>
+            <div class="campo">
+                <label>Estado</label>
+                <select id="editEstado">
+                    <option value="borrador">Borrador</option>
+                    <option value="en_proceso">En proceso</option>
+                    <option value="pausado">Pausado</option>
+                    <option value="terminado">Terminado</option>
+                </select>
+            </div>
+            <div class="modal-btns">
+                <button type="submit" class="btn-modal-ok">Guardar</button>
+                <button type="button" class="btn-modal-cancel" onclick="cerrarModal('modalEditar')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/DayneiraApp/JS/mislibros.js"></script>
+<script>
+    // Cargar libros via JSON al entrar
+    window.addEventListener('load', function() {
+        fetch('/DayneiraApp/mislibros/json')
+            .then(function(r){
+                if(!r.ok) throw new Error('HTTP '+r.status);
+                return r.json();
+            })
+            .then(function(data) {
+                document.getElementById('spanUsername').textContent = data.username || '';
+                renderLibros(data.libros || []);
+                // Aplicar filtro activo
+                var btnActivo = document.querySelector('.filtro-btn.activo');
+                if(btnActivo && btnActivo.dataset.filtro !== 'todos') filtrar(btnActivo);
+            })
+            .catch(function(e){
+                console.error('Error cargando libros:', e);
+                document.getElementById('librosLista').innerHTML =
+                    '<p style="text-align:center;color:#c0392b;padding:40px">Error al cargar los libros. Recarga la página.</p>';
+            });
+    });
+
+    function renderLibros(libros) {
+        var c = document.getElementById('librosLista');
+        if (!libros.length) {
+            c.innerHTML = '<div class="sin-libros"><div class="sin-libros-icon">📚</div><h3>Aún no tienes ningún libro</h3><p>Pulsa "Nuevo libro" para empezar tu primera historia</p><button class="btn-nuevo" onclick="abrirModalNuevo()">+ Crear mi primer libro</button></div>';
+            return;
+        }
+        c.innerHTML = libros.map(function(l) {
+            return '<div class="libro-card" data-estado="'+(l.estado||'')+'" data-id="'+l.id+'">' +
+                '<div class="libro-portada" style="background:'+(l.colorPortada||'#9b6dff')+'">' +
+                '<span class="libro-emoji">'+(l.emojiPortada||'📖')+'</span></div>' +
+                '<div class="libro-info">' +
+                '<div class="libro-cabecera"><h3 class="libro-titulo">'+esc(l.titulo)+'</h3>' +
+                '<span class="libro-estado estado-'+(l.estado||'borrador')+'">'+(l.estado||'borrador')+'</span></div>' +
+                '<p class="libro-genero">'+(l.genero||'Sin género')+'</p>' +
+                '<p class="libro-desc">'+(l.descripcion||'Sin descripción')+'</p>' +
+                '<div class="libro-fecha">Editado: '+(l.fechaEdicionStr||'Recién creado')+'</div>' +
+                '</div>' +
+                '<div class="libro-acciones">' +
+                '<a href="/DayneiraApp/escribir/" class="btn-accion btn-abrir">✍️ Escribir</a>' +
+                '<button class="btn-accion btn-editar" onclick="abrirEditar('+l.id+',\''+esc(l.titulo)+'\',\''+esc(l.genero||'')+'\',\''+esc(l.estado||'borrador')+'\')">Editar</button>' +
+                '<button class="btn-accion btn-borrar" onclick="borrar('+l.id+',\''+esc(l.titulo)+'\')">Borrar</button>' +
+                '</div></div>';
+        }).join('');
+    }
+
+    function esc(s) { return (s||'').replace(/'/g,"\\'").replace(/</g,'&lt;'); }
+
+    function crearLibro(e) {
+        e.preventDefault();
+        var fd = new URLSearchParams();
+        fd.append('titulo', document.getElementById('nuevoTitulo').value.trim());
+        fd.append('genero', document.getElementById('nuevoGenero').value);
+        fd.append('descripcion', document.getElementById('nuevoDesc').value);
+        fd.append('colorPortada', document.getElementById('colorPortadaInput').value);
+        fd.append('emojiPortada', document.getElementById('emojiPortadaInput').value);
+        fetch('/DayneiraApp/mislibros/crear', {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body: fd.toString()
+        }).then(function(){ location.reload(); });
+    }
+
+    function editarLibro(e) {
+        e.preventDefault();
+        var fd = new URLSearchParams();
+        fd.append('id', document.getElementById('editId').value);
+        fd.append('titulo', document.getElementById('editTitulo').value);
+        fd.append('genero', document.getElementById('editGenero').value);
+        fd.append('estado', document.getElementById('editEstado').value);
+        fetch('/DayneiraApp/mislibros/editar', {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body: fd.toString()
+        }).then(function(){ location.reload(); });
+    }
+
+    function abrirEditar(id, titulo, genero, estado) {
+        document.getElementById('editId').value = id;
+        document.getElementById('editTitulo').value = titulo;
+        document.getElementById('editGenero').value = genero;
+        document.getElementById('editEstado').value = estado;
+        document.getElementById('modalEditar').classList.add('abierto');
+    }
+
+    function borrar(id, titulo) {
+        if (!confirm('¿Seguro que quieres borrar "' + titulo + '"?')) return;
+        var fd = new URLSearchParams();
+        fd.append('id', id);
+        fetch('/DayneiraApp/mislibros/borrar', {
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body: fd.toString()
+        }).then(function(){ location.reload(); });
+    }
+
+    function abrirModalNuevo() { document.getElementById('modalNuevo').classList.add('abierto'); }
+    function cerrarModal(id) { document.getElementById(id).classList.remove('abierto'); }
+    function cerrarModalSiOverlay(e, id) { if (e.target.id === id) cerrarModal(id); }
+    function selColor(el) {
+        document.querySelectorAll('.color-opt').forEach(function(c){c.classList.remove('activo');});
+        el.classList.add('activo');
+        document.getElementById('colorPortadaInput').value = el.dataset.color;
+    }
+    function selEmoji(el) {
+        document.querySelectorAll('.emoji-opt').forEach(function(e){e.classList.remove('activo');});
+        el.classList.add('activo');
+        document.getElementById('emojiPortadaInput').value = el.textContent;
+    }
+</script>
+</body>
+</html>

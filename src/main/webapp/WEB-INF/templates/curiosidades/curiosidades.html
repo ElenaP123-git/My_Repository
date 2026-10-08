@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira - Datos curiosos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/DayneiraApp/CSS/curiosidades.css">
+    <style>
+        /* Expansion de tarjeta sin JS */
+        .toggle-check { display: none; }
+
+        .card-extra {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #E8D5B7;
+        }
+
+        .card-extra p {
+            font-size: 13px;
+            color: #2C1A0E;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .card-reflexion {
+            background: linear-gradient(135deg, #2C1A0E, #6B4226);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 10px;
+        }
+
+        .card-reflexion-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #E8A96A;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .card-reflexion p {
+            font-family: 'Playfair Display', serif;
+            font-size: 13px;
+            color: #E8D5B7;
+            line-height: 1.6;
+            font-style: italic;
+            margin-bottom: 0;
+        }
+
+        .toggle-check:checked ~ .card-extra { display: block; }
+
+        .toggle-check:checked ~ .card-leer-label { display: none; }
+
+        .card-cerrar {
+            display: none;
+            font-size: 13px;
+            font-weight: 700;
+            color: #8B6E52;
+            cursor: pointer;
+            margin-top: 10px;
+            background: none;
+            border: none;
+            padding: 0;
+            font-family: 'Baloo 2', sans-serif;
+        }
+
+        .toggle-check:checked ~ .card-cerrar { display: inline-block; }
+
+        .card-leer-label {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #C8854A;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .card-leer-label:hover { color: #6B4226; }
+
+        .curiosidad-card { cursor: default; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-logo"><a th:href="@{/inicio/}">Dayneira</a></div>
+    <div class="navbar-user">
+        <div class="user-menu-wrapper">
+            <button class="btn-username" onclick="toggleMenu()">
+                <span th:text="${username}">artista</span>
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="#" class="dropdown-item">Informacion de la cuenta</a>
+                <a href="#" class="dropdown-item">Editar perfil</a>
+                <div class="dropdown-sep"></div>
+                <a th:href="@{/usuario/logout}" class="dropdown-item dropdown-logout">Cerrar sesion</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-titulo">Datos curiosos</h1>
+            <p class="page-sub">Cosas que quizas no sabias y que pueden inspirar tu proxima historia</p>
+        </div>
+        <button class="btn-generar" id="btnGenerar" onclick="generarConIA()">
+            Generar con Onirea
+        </button>
+    </div>
+
+    <div class="categorias">
+        <button class="cat-btn activo" data-cat="todos" onclick="filtrarCat(this)">Todos</button>
+        <button class="cat-btn" data-cat="mundo" onclick="filtrarCat(this)">El mundo</button>
+        <button class="cat-btn" data-cat="cuerpo" onclick="filtrarCat(this)">Cuerpo humano</button>
+        <button class="cat-btn" data-cat="historia" onclick="filtrarCat(this)">Historia y arte</button>
+        <button class="cat-btn" data-cat="escritura" onclick="filtrarCat(this)">Escritura</button>
+        <button class="cat-btn" data-cat="mitologia" onclick="filtrarCat(this)">Mitologia</button>
+        <button class="cat-btn" data-cat="creatividad" onclick="filtrarCat(this)">Creatividad</button>
+    </div>
+
+    <div class="dato-destacado">
+        <div class="destacado-label">Dato del dia</div>
+        <p class="destacado-texto" id="datoDelDia"></p>
+    </div>
+
+    <div class="curiosidades-grid" id="curiosidadesGrid">
+
+        <!-- MUNDO 1 -->
+        <div class="curiosidad-card" data-cat="mundo">
+            <div class="card-emoji">🏖️</div>
+            <div class="card-cat">El mundo</div>
+            <h3>Playas de arena negra</h3>
+            <p>Existen playas con arena completamente negra como las de Islandia o Hawaii. El color viene de las rocas volcanicas que el mar ha ido triturando durante miles de años.</p>
+            <input type="checkbox" class="toggle-check" id="t1">
+            <label class="card-leer-label" for="t1">Leer mas →</label>
+            <div class="card-extra">
+                <p>Las playas de arena negra existen en lugares con actividad volcanica intensa: Islandia, Hawaii, Canarias o el sur de Italia. La arena negra es mas pesada, se calienta mas rapido y tiene una textura diferente a la dorada. En Islandia, la playa Reynisfjara tiene ademas columnas de basalto hexagonales formadas de manera natural. El contraste entre arena negra, mar gris y cielo blanco crea un paisaje de otro planeta.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que significado simbolico podria tener una playa negra para una cultura ficticia? Seria un lugar sagrado, maldito, o un portal?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t1">↑ Cerrar</label>
+        </div>
+
+        <!-- MUNDO 2 -->
+        <div class="curiosidad-card" data-cat="mundo">
+            <div class="card-emoji">🌊</div>
+            <div class="card-cat">El mundo</div>
+            <h3>El mar de estrellas</h3>
+            <p>En las Maldivas existe una playa donde el mar brilla de noche con luz azul. Son organismos marinos bioluminiscentes que reaccionan al movimiento del agua.</p>
+            <input type="checkbox" class="toggle-check" id="t2">
+            <label class="card-leer-label" for="t2">Leer mas →</label>
+            <div class="card-extra">
+                <p>La bioluminiscencia es la capacidad de producir luz propia mediante reacciones quimicas. Cuando el agua se agita, los organismos emiten destellos azules o verdes. El espectaculo depende de la temperatura del agua y la fase lunar, no ocurre todas las noches. Las culturas antiguas creian que el mar brillante era una senal de los dioses.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Como usarias la bioluminiscencia en tu historia? Podria ser un sistema de comunicacion, una senal de peligro, o tener propiedades magicas?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t2">↑ Cerrar</label>
+        </div>
+
+        <!-- MUNDO 3 -->
+        <div class="curiosidad-card" data-cat="mundo">
+            <div class="card-emoji">🌈</div>
+            <div class="card-cat">El mundo</div>
+            <h3>La montana de siete colores</h3>
+            <p>El Vinicunca en Peru tiene capas de colores por los diferentes minerales. Durante siglos estuvo cubierta de nieve, el deshielo la revelo al mundo hace solo unas decadas.</p>
+            <input type="checkbox" class="toggle-check" id="t3">
+            <label class="card-leer-label" for="t3">Leer mas →</label>
+            <div class="card-extra">
+                <p>El Vinicunca esta en los Andes peruanos a mas de 5.000 metros de altitud. Sus colores vienen de minerales como el hierro, el azufre y la clorita acumulados durante millones de años. Los quechua la llamaban Apu Vinicunca, un espiritu de la montana. Subir hasta la cima lleva horas y el paisaje cambia radicalmente en cada curva del camino.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que pasaria si los colores de una montana fueran una escritura antigua? Que diria ese mensaje visible solo desde arriba?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t3">↑ Cerrar</label>
+        </div>
+
+        <!-- HISTORIA 1 -->
+        <div class="curiosidad-card" data-cat="historia">
+            <div class="card-emoji">⛪</div>
+            <div class="card-cat">Historia y arte</div>
+            <h3>Las iglesias excavadas hacia abajo</h3>
+            <p>En Etiopia, las iglesias de Lalibela fueron esculpidas en la roca hacia abajo. Son edificios completos hundidos en el suelo, tallados desde arriba hacia el interior de la tierra.</p>
+            <input type="checkbox" class="toggle-check" id="t4">
+            <label class="card-leer-label" for="t4">Leer mas →</label>
+            <div class="card-extra">
+                <p>Las once iglesias fueron talladas en el siglo XII por orden del rey Lalibela. No son cuevas adaptadas, son edificios completos esculpidos en roca volcanica solida. La mas famosa, Bete Giyorgis, tiene forma de cruz perfecta vista desde arriba. Estan conectadas por tuneles tallados en la roca y hoy siguen siendo iglesias activas. La leyenda dice que los angeles trabajaban de noche para avanzar el doble.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que civilizacion construiria hacia abajo en lugar de hacia arriba? Que razones religiosas o culturales podrian tener?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t4">↑ Cerrar</label>
+        </div>
+
+        <!-- HISTORIA 2 -->
+        <div class="curiosidad-card" data-cat="historia">
+            <div class="card-emoji">🗿</div>
+            <div class="card-cat">Historia y arte</div>
+            <h3>Los Moai tienen cuerpo</h3>
+            <p>Las famosas estatuas de la Isla de Pascua no son solo cabezas, tienen cuerpos completos enterrados bajo tierra. Algunos tienen inscripciones en la espalda aun sin descifrar.</p>
+            <input type="checkbox" class="toggle-check" id="t5">
+            <label class="card-leer-label" for="t5">Leer mas →</label>
+            <div class="card-extra">
+                <p>Las excavaciones revelaron cuerpos completos enterrados, algunos de mas de 7 metros de altura y 80 toneladas de peso. En la espalda hay inscripciones en Rongorongo, un sistema de escritura unico aun sin descifrar. Los Rapa Nui los transportaban sin ruedas ni animales, haciendolos caminar oscilando con cuerdas. La civilizacion que los construyo desaparecio antes de la llegada europea.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que secreto podria esconder el cuerpo enterrado de una estatua en tu historia? Que revelaria al desenterrarse?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t5">↑ Cerrar</label>
+        </div>
+
+        <!-- CUERPO 1 -->
+        <div class="curiosidad-card" data-cat="cuerpo">
+            <div class="card-emoji">🧬</div>
+            <div class="card-cat">Cuerpo humano</div>
+            <h3>Las lineas de Blaschko</h3>
+            <p>El cuerpo humano tiene lineas invisibles que siguen el rastro de celulas durante el desarrollo embrionario. Solo se ven bajo luz ultravioleta o en personas con dos ADN distintos.</p>
+            <input type="checkbox" class="toggle-check" id="t6">
+            <label class="card-leer-label" for="t6">Leer mas →</label>
+            <div class="card-extra">
+                <p>Estas lineas siguen el camino que recorrieron las celulas durante el desarrollo embrionario. En personas con quimerismo, que tienen dos tipos de ADN porque dos embriones se fusionaron, las lineas aparecen como franjas de piel con colores ligeramente distintos. Las formas varian segun la zona del cuerpo: rayas en V en el tronco, lineas en los brazos, remolinos en la cabeza. Es como si cada persona llevara un mapa secreto de su propio origen.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que pasaria si en tu mundo estas lineas fueran visibles para todos? Como cambiaria la sociedad o la identidad de los personajes?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t6">↑ Cerrar</label>
+        </div>
+
+        <!-- CUERPO 2 -->
+        <div class="curiosidad-card" data-cat="cuerpo">
+            <div class="card-emoji">💀</div>
+            <div class="card-cat">Cuerpo humano</div>
+            <h3>Los huesos que desaparecen</h3>
+            <p>Los bebes nacen con 270 huesos. Los adultos tienen 206. Los demas no desaparecen, se fusionan. El craneo de un recien nacido son varios huesos separados que se unen lentamente.</p>
+            <input type="checkbox" class="toggle-check" id="t7">
+            <label class="card-leer-label" for="t7">Leer mas →</label>
+            <div class="card-extra">
+                <p>Al nacer, el craneo tiene zonas blandas llamadas fontanelas que permiten que la cabeza se deforme para pasar por el canal de parto. Esas zonas se osifican durante los primeros dos años. Lo mismo ocurre con el sacro, que en los bebes son cinco vertebras sueltas. El proceso no termina hasta los veinticinco años, cuando el esqueleto alcanza su forma adulta definitiva.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Como seria una criatura cuyo esqueleto nunca terminara de fusionarse? Que ventajas o desventajas tendria para sobrevivir?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t7">↑ Cerrar</label>
+        </div>
+
+        <!-- ESCRITURA -->
+        <div class="curiosidad-card" data-cat="escritura">
+            <div class="card-emoji">✍️</div>
+            <div class="card-cat">Escritura</div>
+            <h3>Tolkien construyo el idioma primero</h3>
+            <p>J.R.R. Tolkien invento el Quenya y el Sindarin decadas antes de escribir El Senor de los Anillos. La Tierra Media surgio para que los idiomas tuvieran hablantes.</p>
+            <input type="checkbox" class="toggle-check" id="t8">
+            <label class="card-leer-label" for="t8">Leer mas →</label>
+            <div class="card-extra">
+                <p>Tolkien era profesor de linguistica en Oxford y su pasion era inventar idiomas, no contar historias. Comenzo el Quenya cuando tenia veinte años, mucho antes de que existiera la Tierra Media. El Quenya esta inspirado en el fines y el Sindarin en el gales. Ambos tienen gramatica completa, vocabulario extenso y sistema de escritura propio. Tolkien decia que inventar un idioma sin una mitologia era como construir una casa sin cimientos.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que revelaria el idioma de tu mundo sobre la cultura que lo habla? Que palabras existirian que no existen en ningun idioma real?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t8">↑ Cerrar</label>
+        </div>
+
+        <!-- MITOLOGIA 1 -->
+        <div class="curiosidad-card" data-cat="mitologia">
+            <div class="card-emoji">🐉</div>
+            <div class="card-cat">Mitologia</div>
+            <h3>Los dragones en todas las culturas</h3>
+            <p>Culturas que nunca tuvieron contacto, China, Europa, America precolombina, Mesopotamia, todas tienen leyendas de grandes serpientes o lagartos alados.</p>
+            <input type="checkbox" class="toggle-check" id="t9">
+            <label class="card-leer-label" for="t9">Leer mas →</label>
+            <div class="card-extra">
+                <p>Los dragones aparecen en mitologias de culturas que jamas tuvieron contacto. Todos describen criaturas similares: grandes, poderosas, asociadas al fuego o al agua. En Occidente el dragon es el enemigo a vencer; en Asia, simbolo de poder y buena suerte. Algunas teorias proponen que el mito surgio cuando los humanos encontraban huesos de dinosaurios.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Por que todas las culturas necesitaron inventar una criatura asi? Que funcion cumplia en sus historias y como podrias reinterpretarlo?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t9">↑ Cerrar</label>
+        </div>
+
+        <!-- CREATIVIDAD 1 -->
+        <div class="curiosidad-card" data-cat="creatividad">
+            <div class="card-emoji">🎨</div>
+            <div class="card-cat">Creatividad</div>
+            <h3>El azul que no existia</h3>
+            <p>Los antiguos griegos no tenian palabra para el color azul. Homero describe el mar como color de vino. Sin nombre para un color, es mas dificil distinguirlo visualmente.</p>
+            <input type="checkbox" class="toggle-check" id="t10">
+            <label class="card-leer-label" for="t10">Leer mas →</label>
+            <div class="card-extra">
+                <p>El linguista William Gladstone analizo en 1858 los textos de Homero y descubrio que nunca menciona el azul. El cielo es bronce, el mar es color de vino oscuro. El azul fue el ultimo color en recibir nombre en casi todas las culturas. Los estudios muestran que las personas sin nombre para un color tienen mas dificultad para distinguirlo visualmente. El lenguaje no solo describe la realidad, la crea.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que ocurriria si una cultura en tu historia no pudiera ver cierto color porque no tiene palabra para el? Que pasaria al descubrirlo?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t10">↑ Cerrar</label>
+        </div>
+
+        <!-- HISTORIA 3 -->
+        <div class="curiosidad-card" data-cat="historia">
+            <div class="card-emoji">🎭</div>
+            <div class="card-cat">Historia y arte</div>
+            <h3>Las pinturas rupestres animadas</h3>
+            <p>Algunas pinturas de hace 30.000 años estan en paredes irregulares a proposito. Con una antorcha en movimiento, los animales parecen correr. El cine tiene 30.000 años.</p>
+            <input type="checkbox" class="toggle-check" id="t11">
+            <label class="card-leer-label" for="t11">Leer mas →</label>
+            <div class="card-extra">
+                <p>En cuevas como Lascaux o Altamira, los animales estan pintados en paredes con relieves que no son accidentales. Con una antorcha en movimiento, los bisontes parecen correr y las figuras cobran vida. Los humanos del Paleolitico contaban historias con luz y movimiento en cuevas que actuaban como cines naturales.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que nos dice sobre los humanos que su primer arte ya fuera cinematografico y narrativo? Como usarias esto como elemento de una historia?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t11">↑ Cerrar</label>
+        </div>
+
+        <!-- MITOLOGIA 2 -->
+        <div class="curiosidad-card" data-cat="mitologia">
+            <div class="card-emoji">🌊</div>
+            <div class="card-cat">Mitologia</div>
+            <h3>El diluvio en 200 culturas</h3>
+            <p>Mas de 200 culturas distintas tienen un mito de un gran diluvio que casi destruyo la humanidad, Sumer, Grecia, los Mayas, pueblos indigenas de todo el mundo.</p>
+            <input type="checkbox" class="toggle-check" id="t12">
+            <label class="card-leer-label" for="t12">Leer mas →</label>
+            <div class="card-extra">
+                <p>Los sumerios tenian el mito de Utnapishtim, anterior al texto biblico. Los griegos tenian a Deucalion. Los Mayas lo describian en el Popol Vuh. Una teoria reciente propone que el mito podria tener origen real: hace 7.600 años el Mar Negro era un lago de agua dulce y cuando el Mediterraneo subio, inundo una enorme region fertil.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que diria el mito del diluvio sobre las culturas que lo cuentan? Como usarias un diluvio como punto de inicio de una historia?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t12">↑ Cerrar</label>
+        </div>
+
+        <!-- MUNDO 4 -->
+        <div class="curiosidad-card" data-cat="mundo">
+            <div class="card-emoji">🌲</div>
+            <div class="card-cat">El mundo</div>
+            <h3>El arbol mas antiguo del mundo</h3>
+            <p>Hay un arbol en Suecia llamado Old Tjikko con 9.550 años de antiguedad. Cuando nacio, los humanos aun no habian inventado la escritura.</p>
+            <input type="checkbox" class="toggle-check" id="t13">
+            <label class="card-leer-label" for="t13">Leer mas →</label>
+            <div class="card-extra">
+                <p>Old Tjikko es un pino de montaña en Suecia. El arbol visible no tiene esa edad, pero el sistema de raices del que brota lleva activo 9.550 años. Nacio cuando el mundo salia de la ultima era glacial, antes de Stonehenge, antes de las piramides, antes de la escritura cuneiforme. Ha sobrevivido civilizaciones enteras sin que nadie lo supiera.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Que habria visto ese arbol si pudiera recordar? Como narraias la historia del mundo desde la perspectiva de algo que lo ha observado todo?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t13">↑ Cerrar</label>
+        </div>
+
+        <!-- CREATIVIDAD 2 -->
+        <div class="curiosidad-card" data-cat="creatividad">
+            <div class="card-emoji">🧠</div>
+            <div class="card-cat">Creatividad</div>
+            <h3>Dormir para crear</h3>
+            <p>El quimico que descubrio la estructura del benceno la vio en un sueno. Paul McCartney compuso Yesterday durmiendo. El cerebro resuelve problemas creativos en el sueno REM.</p>
+            <input type="checkbox" class="toggle-check" id="t14">
+            <label class="card-leer-label" for="t14">Leer mas →</label>
+            <div class="card-extra">
+                <p>August Kekule vio la estructura circular del benceno en un sueno donde una serpiente se mordia la cola. Paul McCartney escucho la melodia de Yesterday al despertar y tardo semanas en creer que era suya. Durante el sueno REM, el cerebro conecta informacion de forma no lineal, sin la censura logica de la vigilia.</p>
+                <div class="card-reflexion">
+                    <div class="card-reflexion-label">Reflexiona como escritor/a</div>
+                    <p>Y si en tu historia los suenos no fueran aleatorios sino mensajes de una version futura del soñador? Que cambiaria?</p>
+                </div>
+            </div>
+            <label class="card-cerrar" for="t14">↑ Cerrar</label>
+        </div>
+
+    </div>
+
+    <div class="ia-resultado" id="iaResultado" style="display:none">
+        <div class="ia-header">
+            <span>Generado por Onirea</span>
+            <button onclick="document.getElementById('iaResultado').style.display='none'">X</button>
+        </div>
+        <div class="ia-cards" id="iaCards"></div>
+    </div>
+
+</div>
+
+<script src="/DayneiraApp/JS/curiosidades.js"></script>
+</body>
+</html>

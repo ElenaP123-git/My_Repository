@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+
+    <display-name>Dayneira</display-name>
+
+    <servlet>
+        <servlet-name>UsuarioServlet</servlet-name>
+        <servlet-class>app.servlet.UsuarioServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UsuarioServlet</servlet-name>
+        <url-pattern>/usuario/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>InicioServlet</servlet-name>
+        <servlet-class>app.servlet.InicioServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>InicioServlet</servlet-name>
+        <url-pattern>/inicio/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>OnireaServlet</servlet-name>
+        <servlet-class>app.servlet.OnireaServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OnireaServlet</servlet-name>
+        <url-pattern>/onirea/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AvatarServlet</servlet-name>
+        <servlet-class>app.servlet.AvatarServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AvatarServlet</servlet-name>
+        <url-pattern>/avatar/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>MisLibrosServlet</servlet-name>
+        <servlet-class>app.servlet.MisLibrosServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MisLibrosServlet</servlet-name>
+        <url-pattern>/mislibros/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>CuriosidadesServlet</servlet-name>
+        <servlet-class>app.servlet.CuriosidadesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CuriosidadesServlet</servlet-name>
+        <url-pattern>/curiosidades/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/CSS/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/JS/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/IMAGES/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>TipsServlet</servlet-name>
+        <servlet-class>app.servlet.TipsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TipsServlet</servlet-name>
+        <url-pattern>/tips/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>EscribirServlet</servlet-name>
+        <servlet-class>app.servlet.EscribirServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EscribirServlet</servlet-name>
+        <url-pattern>/escribir/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>DiarioServlet</servlet-name>
+        <servlet-class>app.servlet.DiarioServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DiarioServlet</servlet-name>
+        <url-pattern>/diario/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>MundoServlet</servlet-name>
+        <servlet-class>app.servlet.MundoServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MundoServlet</servlet-name>
+        <url-pattern>/mundo/*</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>MapaServlet</servlet-name>
+        <servlet-class>app.servlet.MapaServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MapaServlet</servlet-name>
+        <url-pattern>/mapa/*</url-pattern>
+    </servlet-mapping>
+
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/usuario/</location>
+    </error-page>
+
+</web-app>

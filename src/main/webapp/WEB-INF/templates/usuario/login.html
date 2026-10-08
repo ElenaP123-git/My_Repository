@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira — Iniciar sesion</title>
+    <link rel="stylesheet" th:href="@{/CSS/main.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="auth-logo">✦ Dayneira</div>
+    <p class="auth-subtitulo">Tu espacio de creacion artistica</p>
+    <div th:if="${error}" class="alerta alerta-error" th:text="${error}"></div>
+    <div th:if="${param.registrado}" class="alerta alerta-ok">
+        Cuenta creada! Ya puedes iniciar sesion
+    </div>
+    <form th:action="@{/usuario/login}" method="post">
+        <div class="campo">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="tu@email.com" required autofocus>
+        </div>
+        <div class="campo">
+            <label for="password">Contrasena</label>
+            <input type="password" id="password" name="password" placeholder="Tu contrasena" required>
+        </div>
+        <button type="submit" class="btn-auth">Entrar →</button>
+    </form>
+    <p class="auth-link">
+        Aun no tienes cuenta? <a th:href="@{/usuario/registro}">Registrate aqui</a>
+    </p>
+</div>
+</body>
+</html>

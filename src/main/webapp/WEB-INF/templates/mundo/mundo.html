@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira — Tu Mundo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Baloo+2:wght@400;600;700;800&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+          --bg-space:#04080f;--star-color:rgba(200,220,255,.7);
+          --ambar:#C8854A;--ambar2:#E8A96A;--pergamino:#E8D5B7;
+          --marron:#2C1A0E;--caoba:#6B4226;--muted:#8B6E52;
+          --texto:#f0e8d8;
+          /* Tema por defecto */
+          --theme-bg1:#020408;--theme-bg2:#06090f;
+          --theme-accent:#4080e0;--theme-accent2:#80b8ff;
+          --theme-border:rgba(64,128,224,.35);--theme-glow:rgba(64,128,224,.12);
+          --planet-color1:#081840;--planet-color2:#040c20;--planet-color3:#020610;
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Baloo 2',sans-serif;background:radial-gradient(ellipse at 50% 10%,#0c1a38 0%,#060c1c 50%,#02040a 100%);color:var(--texto);min-height:100vh;overflow-x:hidden;transition:background .8s,color .3s;}
+
+        /* ═══ FONDO ESPACIO ═══ */
+        .space-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+        .space-bg canvas{position:absolute;inset:0;width:100%;height:100%;}
+        .nebula{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;pointer-events:none;transition:all 1s;}
+        .nebula1{width:700px;height:500px;top:-120px;left:-120px;background:radial-gradient(ellipse,rgba(64,128,224,.18) 0%,rgba(32,64,160,.06) 50%,transparent 70%);}
+        .nebula2{width:600px;height:600px;bottom:-120px;right:-120px;background:radial-gradient(ellipse,rgba(80,40,200,.14) 0%,rgba(40,80,180,.05) 50%,transparent 70%);}
+
+        /* NAVBAR */
+        .navbar{display:flex;justify-content:space-between;align-items:center;padding:0 24px;background:rgba(8,14,28,.85);border-bottom:1px solid var(--theme-border);position:fixed;top:0;left:0;right:0;z-index:600;height:52px;gap:12px;backdrop-filter:blur(16px);transition:all .5s;box-shadow:0 2px 30px rgba(80,144,255,.08);}
+        .nav-logo{font-family:\'Playfair Display\',serif;color:var(--pergamino);font-size:19px;font-weight:700;text-decoration:none;}
+        .nav-titulo{font-family:\'Playfair Display\',serif;font-size:15px;color:var(--theme-accent2);font-weight:700;transition:color .5s;}
+        .nav-btn{background:rgba(232,213,183,.08);border:1px solid var(--theme-border);color:var(--pergamino);padding:5px 14px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .2s;text-decoration:none;}
+        .nav-btn:hover{background:rgba(232,213,183,.18);border-color:var(--theme-accent);}
+
+        /* PANTALLA PRINCIPAL */
+        .main-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding-top:52px;position:relative;z-index:1;}
+        .main-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:28px;padding:24px;}
+
+        /* LIBRO ACTIVO */
+        .libro-activo-bar{background:rgba(10,6,2,.7);border:1px solid var(--theme-border);border-radius:14px;padding:10px 20px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(12px);transition:border-color .5s;}
+        .libro-activo-bar span{font-size:12px;color:var(--muted);}
+        .libro-activo-bar strong{font-size:14px;color:var(--theme-accent2);font-family:\'Playfair Display\',serif;transition:color .5s;}
+        .btn-cambiar{background:rgba(200,133,74,.12);border:1px solid var(--theme-border);color:var(--theme-accent2);padding:4px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .2s;}
+        .btn-cambiar:hover{background:rgba(200,133,74,.25);}
+
+        /* PLANETA 3D */
+        .planeta-wrap{position:relative;width:480px;height:480px;flex-shrink:0;}
+        .planeta-sombra{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);width:70%;height:40px;background:radial-gradient(ellipse,rgba(0,0,0,.6) 0%,transparent 70%);filter:blur(12px);}
+        .planeta{width:100%;height:100%;border-radius:50%;
+          background:radial-gradient(circle at 30% 28%,var(--planet-color1) 0%,var(--planet-color2) 45%,var(--planet-color3) 100%);
+          box-shadow:
+            20px 20px 60px rgba(0,0,0,.8),
+            -8px -8px 30px rgba(255,255,255,.03),
+            0 0 120px var(--theme-glow),
+            inset -30px -30px 80px rgba(0,0,0,.7),
+            inset 15px 15px 50px rgba(255,255,255,.04);
+          position:relative;overflow:hidden;transition:all .8s;}
+        /* Atmósfera */
+        .planeta::before{content:'';position:absolute;inset:-4px;border-radius:50%;background:radial-gradient(circle at 30% 28%,transparent 50%,var(--theme-glow) 80%,transparent 100%);opacity:.6;pointer-events:none;transition:all .8s;}
+        /* Brillo */
+        .planeta::after{content:'';position:absolute;top:8%;left:12%;width:32%;height:28%;background:radial-gradient(ellipse,rgba(255,255,255,.12) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+        .planeta-map{position:absolute;inset:0;border-radius:50%;opacity:0;transition:opacity .8s;background-size:cover;background-position:center;mix-blend-mode:luminosity;overflow:hidden;}
+        .planeta-map.visible{opacity:.85;}
+        /* Anillo decorativo */
+        .planeta-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotateX(75deg);width:640px;height:640px;border-radius:50%;border:2px solid var(--theme-border);opacity:.2;pointer-events:none;transition:border-color .5s;}
+
+        /* NODOS */
+        .nodo{position:absolute;transform:translate(-50%,-50%);z-index:10;}
+        .nodo-btn{width:72px;height:72px;border-radius:50%;border:1.5px solid var(--theme-border);background:rgba(8,12,28,.88);backdrop-filter:blur(12px);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .25s;gap:2px;box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 14px var(--theme-glow);position:relative;}
+        .nodo-btn:hover{border-color:var(--theme-accent);background:rgba(80,144,255,.15);transform:scale(1.18);box-shadow:0 0 30px var(--theme-glow),0 0 60px rgba(80,144,255,.1),0 4px 20px rgba(0,0,0,.5);}
+        .nodo-btn.completo{border-color:#4a8a4a;}
+        .nodo-check{display:none;position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:#4a8a4a;border-radius:50%;font-size:9px;align-items:center;justify-content:center;color:white;font-weight:700;}
+        .nodo-btn.completo .nodo-check{display:flex;}
+        .nodo-ico{font-size:18px;line-height:1;}
+        .nodo-txt{font-size:7px;font-weight:700;color:var(--theme-accent2);text-transform:uppercase;letter-spacing:.6px;text-align:center;transition:color .5s;}
+
+        /* ONÍREA BTN */
+        .btn-onirea{background:linear-gradient(135deg,rgba(60,20,100,.6),rgba(20,5,40,.8));border:1px solid rgba(147,112,219,.35);color:#c8a8f0;padding:11px 24px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;display:flex;align-items:center;gap:8px;transition:all .25s;backdrop-filter:blur(8px);}
+        .btn-onirea:hover{border-color:rgba(147,112,219,.6);box-shadow:0 0 24px rgba(147,112,219,.2);}
+
+        /* ═══ OVERLAY ═══ */
+        .overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:700;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+        .overlay.visible{display:flex;}
+
+        /* MODAL LIBROS */
+        .modal-libro{background:#08050e;border:1px solid var(--theme-border);border-radius:18px;padding:34px 38px;max-width:480px;width:94%;box-shadow:0 30px 80px rgba(0,0,0,.7);transition:border-color .5s;}
+        .modal-titulo{font-family:\'Playfair Display\',serif;font-size:21px;color:var(--pergamino);margin-bottom:5px;}
+        .modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
+        .libros-lista{display:flex;flex-direction:column;gap:7px;max-height:300px;overflow-y:auto;}
+        .libro-item{background:rgba(232,213,183,.04);border:1px solid rgba(232,213,183,.08);border-radius:10px;padding:12px 15px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;}
+        .libro-item:hover{border-color:var(--theme-accent);background:rgba(200,133,74,.09);}
+        .libro-item-titulo{font-size:13px;font-weight:700;color:var(--pergamino);}
+        .libro-item-sub{font-size:11px;color:var(--muted);}
+        .btn-cancel{background:none;border:1px solid rgba(232,213,183,.12);color:var(--muted);padding:9px 18px;border-radius:9px;font-size:12px;cursor:pointer;font-family:'Baloo 2',sans-serif;margin-top:14px;}
+
+        /* PANEL SECCIÓN */
+        .panel-seccion{background:#0a0818;border:1px solid var(--theme-border);box-shadow:0 0 60px rgba(80,144,255,.06);border-radius:18px;width:min(900px,97vw);max-height:calc(100vh - 70px);overflow-y:auto;position:relative;transition:border-color .5s;}
+        .panel-header{background:rgba(14,8,28,.95);border-bottom:1px solid var(--theme-border);padding:14px 22px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;border-radius:18px 18px 0 0;backdrop-filter:blur(8px);}
+        .panel-header-ico{font-size:22px;}
+        .panel-header-titulo{font-family:\'Playfair Display\',serif;font-size:19px;color:var(--pergamino);flex:1;}
+        .panel-header-sub{font-size:11px;color:var(--muted);}
+        .btn-x{background:rgba(232,213,183,.08);border:none;color:var(--pergamino);width:28px;height:28px;border-radius:7px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+        .btn-x:hover{background:rgba(232,213,183,.2);}
+        .panel-body{padding:22px;}
+
+        /* BLOQUES */
+        .bloque{margin-bottom:26px;}
+        .bloque-titulo{font-size:12px;font-weight:700;color:var(--theme-accent2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;transition:color .5s;text-shadow:0 0 12px rgba(80,144,255,.3);}
+        .bloque-sub{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+        .ejemplos{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;}
+        .ej-tag{background:rgba(232,213,183,.05);border:1px solid rgba(232,213,183,.1);color:rgba(232,213,183,.55);padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s;}
+        .ej-tag:hover,.ej-tag.sel{background:rgba(80,144,255,.22);border-color:var(--theme-accent);color:var(--theme-accent2);box-shadow:0 0 8px rgba(80,144,255,.2);}
+        .campo{width:100%;background:rgba(232,213,183,.03);border:1px solid rgba(232,213,183,.08);color:var(--texto);padding:9px 13px;border-radius:8px;font-size:12px;font-family:'Baloo 2',sans-serif;outline:none;transition:border-color .2s;}
+        .campo:focus{border-color:var(--theme-accent);}
+        textarea.campo{resize:vertical;min-height:58px;}
+        select.campo{cursor:pointer;}
+        select.campo option{background:#06030a;}
+        .radio-grupo{display:flex;flex-direction:column;gap:7px;}
+        .radio-op{display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid rgba(232,213,183,.07);transition:all .15s;}
+        .radio-op:hover{background:rgba(200,133,74,.07);border-color:rgba(200,133,74,.2);}
+        .radio-op input{accent-color:var(--theme-accent);}
+        .radio-op span{font-size:12px;}
+
+        /* PALETA */
+        .paleta-wrap{display:flex;gap:8px;flex-wrap:wrap;}
+        .color-slot{width:36px;height:36px;border-radius:7px;border:2px dashed rgba(232,213,183,.18);cursor:pointer;position:relative;overflow:hidden;transition:transform .15s;}
+        .color-slot:hover{transform:scale(1.1);}
+        .color-slot input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+        .color-slot-face{position:absolute;inset:2px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:16px;color:rgba(232,213,183,.25);}
+
+        /* MAPA */
+        .mapa-layout{display:grid;grid-template-columns:1fr 260px;gap:16px;}
+        .canvas-wrap{position:relative;border:1.5px solid rgba(232,213,183,.1);border-radius:10px;overflow:hidden;cursor:crosshair;background:#050300;}
+        #mapaCanvas{display:block;width:100%;height:320px;}
+        .canvas-tools{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center;}
+        .ctool{background:rgba(232,213,183,.06);border:1px solid rgba(232,213,183,.1);color:var(--pergamino);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .15s;}
+        .ctool:hover{background:rgba(200,133,74,.15);border-color:var(--theme-accent);}
+        .ctool.on{background:rgba(200,133,74,.22);border-color:var(--theme-accent);color:var(--theme-accent2);}
+        .ctool.generar{background:rgba(200,133,74,.18);border-color:var(--theme-accent);color:var(--theme-accent2);font-weight:700;}
+        .mapa-sidebar{display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:400px;}
+        .nombre-grupo{background:rgba(232,213,183,.03);border:1px solid rgba(232,213,183,.07);border-radius:8px;padding:8px;}
+        .nombre-label{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
+        .nombre-tags{display:flex;flex-wrap:wrap;gap:4px;min-height:20px;}
+        .nombre-tag{background:rgba(200,133,74,.15);border:1px solid rgba(200,133,74,.3);color:var(--ambar2);padding:2px 8px;border-radius:12px;font-size:10px;cursor:grab;user-select:none;white-space:nowrap;transition:all .15s;}
+        .nombre-tag:hover{background:rgba(200,133,74,.3);}
+        .nombre-input-row{display:flex;gap:4px;margin-top:4px;}
+        .nombre-inp{flex:1;background:rgba(232,213,183,.04);border:1px solid rgba(232,213,183,.08);color:var(--texto);padding:3px 8px;border-radius:6px;font-size:11px;font-family:'Baloo 2',sans-serif;outline:none;}
+        .nombre-inp:focus{border-color:var(--theme-accent);}
+        .nombre-add{background:rgba(200,133,74,.15);border:1px solid rgba(200,133,74,.2);color:var(--ambar2);padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Baloo 2',sans-serif;}
+
+        /* MAPA TAGS OVER CANVAS */
+        .mapa-tag-flotante{position:absolute;background:rgba(10,5,2,.82);border:1px solid var(--theme-accent);color:var(--ambar2);padding:2px 8px;border-radius:10px;font-size:10px;font-family:'Caveat',cursive;font-size:13px;cursor:move;user-select:none;white-space:nowrap;backdrop-filter:blur(4px);z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+
+        /* MOODBOARD */
+        .estetica-layout{display:grid;grid-template-columns:1fr 300px;gap:20px;}
+        .moodboard-panel{display:flex;flex-direction:column;gap:10px;}
+        .moodboard-titulo{font-size:12px;font-weight:700;color:var(--theme-accent2);text-transform:uppercase;letter-spacing:1.5px;}
+        .moodboard-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+        .mb-btn{background:rgba(232,213,183,.06);border:1px solid rgba(232,213,183,.1);color:var(--pergamino);padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .15s;}
+        .mb-btn:hover{background:rgba(200,133,74,.15);border-color:var(--theme-accent);}
+        .moodboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:rgba(0,0,0,.3);border:1.5px dashed rgba(232,213,183,.1);border-radius:10px;padding:8px;min-height:340px;}
+        .moodboard-area{position:relative;background:rgba(0,0,0,.3);border:1.5px dashed rgba(232,213,183,.12);border-radius:10px;min-height:420px;overflow:hidden;}
+        .mb-img-pegada{position:absolute;border-radius:5px;box-shadow:0 4px 16px rgba(0,0,0,.5);cursor:move;user-select:none;border:1.5px solid transparent;transition:border-color .15s;}
+        .mb-img-pegada:hover{border-color:rgba(200,133,74,.5);}
+        .mb-img-pegada img{display:block;border-radius:4px;pointer-events:none;}
+        .mb-img-controls{position:absolute;top:-22px;left:0;display:none;gap:3px;background:rgba(10,5,2,.85);border-radius:5px;padding:2px 4px;align-items:center;}
+        .mb-img-pegada:hover .mb-img-controls{display:flex;}
+        .mb-ctrl-btn{background:none;border:none;color:var(--ambar2);font-size:10px;cursor:pointer;padding:1px 4px;border-radius:3px;font-family:'Baloo 2',sans-serif;}
+        .mb-ctrl-btn:hover{background:rgba(200,133,74,.2);}
+        .mb-size-input{width:44px;padding:1px 4px;border:1px solid rgba(232,213,183,.15);border-radius:3px;background:rgba(232,213,183,.05);color:var(--texto);font-size:10px;outline:none;text-align:center;}
+
+        /* FILOSOFÍA TABS */
+        .tabs-filo{display:flex;gap:3px;margin-bottom:18px;flex-wrap:wrap;}
+        .tab-filo{background:rgba(232,213,183,.05);border:1px solid rgba(232,213,183,.08);color:var(--muted);padding:5px 13px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .2s;}
+        .tab-filo:hover{border-color:var(--theme-accent);}
+        .tab-filo.on{background:rgba(200,133,74,.18);border-color:var(--theme-accent);color:var(--theme-accent2);}
+        .tab-c{display:none;}.tab-c.visible{display:block;}
+
+        /* GÉNERO */
+        .genero-preview{border-radius:12px;padding:16px;margin-top:12px;transition:all .5s;}
+
+        /* BOTÓN GUARDAR */
+        .btn-guardar{background:linear-gradient(135deg,var(--theme-accent),var(--caoba));color:white;border:none;padding:12px 26px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .25s;width:100%;margin-top:6px;box-shadow:0 4px 18px rgba(80,144,255,.2);}
+        .btn-guardar:hover{background:linear-gradient(135deg,#7ab0ff,var(--caoba));box-shadow:0 6px 24px rgba(80,144,255,.3);transform:translateY(-1px);}
+
+        /* CHAT ONÍREA */
+        .chat-onirea{background:#06020f;border:1px solid rgba(147,112,219,.3);border-radius:18px;width:min(680px,96vw);max-height:calc(100vh - 90px);display:flex;flex-direction:column;}
+        .chat-header{background:linear-gradient(135deg,#130825,#06020f);padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(147,112,219,.2);border-radius:18px 18px 0 0;}
+        .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:280px;}
+        .msg{max-width:82%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;}
+        .msg.ia{background:rgba(147,112,219,.1);border:1px solid rgba(147,112,219,.18);color:#d8c0f0;align-self:flex-start;border-radius:4px 12px 12px 12px;}
+        .msg.user{background:rgba(200,133,74,.13);border:1px solid rgba(200,133,74,.2);color:var(--ambar2);align-self:flex-end;border-radius:12px 4px 12px 12px;}
+        .chat-typing{padding:8px 14px;background:rgba(147,112,219,.07);border:1px solid rgba(147,112,219,.12);border-radius:4px 12px 12px 12px;font-size:12px;color:rgba(147,112,219,.5);align-self:flex-start;display:none;}
+        .chat-typing.visible{display:block;}
+        .chat-input-wrap{padding:10px 14px;border-top:1px solid rgba(147,112,219,.18);display:flex;gap:8px;border-radius:0 0 18px 18px;}
+        .chat-inp{flex:1;background:rgba(147,112,219,.07);border:1px solid rgba(147,112,219,.18);color:#e0c8ff;padding:9px 13px;border-radius:9px;font-size:13px;font-family:'Baloo 2',sans-serif;outline:none;}
+        .chat-inp::placeholder{color:rgba(147,112,219,.35);}
+        .chat-inp:focus{border-color:rgba(147,112,219,.45);}
+        .chat-send{background:rgba(147,112,219,.25);border:1px solid rgba(147,112,219,.35);color:#e0c8ff;padding:9px 14px;border-radius:9px;cursor:pointer;font-size:14px;transition:all .2s;}
+        .chat-send:hover{background:rgba(147,112,219,.45);}
+
+        ::-webkit-scrollbar{width:4px;}
+        ::-webkit-scrollbar-thumb{background:rgba(200,133,74,.3);border-radius:2px;}
+    </style>
+</head>
+<body>
+
+<!-- FONDO ESPACIO -->
+<div class="space-bg">
+    <canvas id="starsCanvas"></canvas>
+    <div class="nebula nebula1"></div>
+    <div class="nebula nebula2"></div>
+</div>
+
+<nav class="navbar">
+    <a href="/DayneiraApp/inicio/" class="nav-logo">✦ Dayneira</a>
+    <span class="nav-titulo">🌍 Tu Mundo y Estética</span>
+    <a href="/DayneiraApp/inicio/" class="nav-btn">← Inicio</a>
+</nav>
+
+<div class="main-screen">
+    <div class="main-content">
+        <div class="libro-activo-bar">
+            <span>Editando:</span>
+            <strong id="libroNombre">— Selecciona un libro —</strong>
+            <button class="btn-cambiar" onclick="abrirLibros()">Cambiar</button>
+        </div>
+
+        <div class="planeta-wrap">
+            <div class="planeta-ring"></div>
+            <div class="planeta" id="planetaEl">
+                <div class="planeta-map" id="planetaMap"><canvas id="planetaMapCanvas" style="width:100%;height:100%;border-radius:50%;"></canvas></div>
+                <div class="nodo" style="left:50%;top:15%;"><div class="nodo-btn" id="nEstetica" onclick="abrirSec('estetica')"><div class="nodo-check">✓</div><div class="nodo-ico">🎨</div><div class="nodo-txt">Estética</div></div></div>
+                <div class="nodo" style="left:83%;top:33%;"><div class="nodo-btn" id="nEpoca" onclick="abrirSec('epoca')"><div class="nodo-check">✓</div><div class="nodo-ico">⏳</div><div class="nodo-txt">Época</div></div></div>
+                <div class="nodo" style="left:76%;top:68%;"><div class="nodo-btn" id="nMapa" onclick="abrirSec('mapa')"><div class="nodo-check">✓</div><div class="nodo-ico">🗺️</div><div class="nodo-txt">Mapa</div></div></div>
+                <div class="nodo" style="left:50%;top:85%;"><div class="nodo-btn" id="nFilosofia" onclick="abrirSec('filosofia')"><div class="nodo-check">✓</div><div class="nodo-ico">🏛️</div><div class="nodo-txt">Filosofía</div></div></div>
+                <div class="nodo" style="left:24%;top:68%;"><div class="nodo-btn" id="nNarrativa" onclick="abrirSec('narrativa')"><div class="nodo-check">✓</div><div class="nodo-ico">📖</div><div class="nodo-txt">Narrativa</div></div></div>
+                <div class="nodo" style="left:17%;top:33%;"><div class="nodo-btn" id="nGenero" onclick="abrirSec('genero')"><div class="nodo-check">✓</div><div class="nodo-ico">🏷️</div><div class="nodo-txt">Género</div></div></div>
+            </div>
+            <div class="planeta-sombra"></div>
+        </div>
+
+        <button class="btn-onirea" onclick="abrirOnirea()">✨ Hablar con Onírea</button>
+    </div>
+</div>
+
+<!-- OVERLAY LIBROS -->
+<div class="overlay" id="ovLibros">
+    <div class="modal-libro">
+        <div class="modal-titulo">📚 Mis libros</div>
+        <div class="modal-sub">Elige el libro cuyo mundo quieres construir.</div>
+        <div class="libros-lista" id="listaLibros"></div>
+        <button class="btn-cancel" onclick="cerrarOv('ovLibros')">Cancelar</button>
+    </div>
+</div>
+
+<!-- OVERLAY SECCIÓN -->
+<div class="overlay" id="ovSec">
+    <div class="panel-seccion" id="panelSec">
+        <div class="panel-header">
+            <span class="panel-header-ico" id="phIco">🎨</span>
+            <div><div class="panel-header-titulo" id="phTit">Estética</div><div class="panel-header-sub" id="phSub"></div></div>
+            <button class="btn-x" onclick="cerrarSec()">✕</button>
+        </div>
+        <div class="panel-body" id="panelBody"></div>
+    </div>
+</div>
+
+<!-- OVERLAY ONÍREA -->
+<div class="overlay" id="ovOnirea">
+    <div class="chat-onirea">
+        <div class="chat-header">
+            <span style="font-size:26px">🌙</span>
+            <div><div style="font-family:\'Playfair Display\',serif;font-size:17px;color:#e0c8ff">Onírea</div><div style="font-size:11px;color:rgba(147,112,219,.5)">Tu musa creativa</div></div>
+            <button class="btn-x" onclick="cerrarOv('ovOnirea')" style="margin-left:auto">✕</button>
+        </div>
+        <div class="chat-msgs" id="chatMsgs">
+            <div class="msg ia">Hola 🌙 Soy Onírea.<br><br>Antes de empezar, quiero conocerte un poco. ¿Hay algún lugar, real o imaginario, donde te sientas completamente en paz o completamente viva? Puede ser un bosque, una ciudad, el fondo del mar, una habitación a las 3am... lo que sea. Cuéntame.</div>
+        </div>
+        <div class="chat-typing" id="chatTyping">Onírea está pensando...</div>
+        <div class="chat-input-wrap">
+            <input class="chat-inp" id="chatInp" placeholder="Escribe a Onírea..." onkeydown="if(event.key==='Enter')enviarChat()">
+            <button class="chat-send" onclick="enviarChat()">➤</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="none">
+    // ══════════════ ESTADO ══════════════
+    var libros = JSON.parse(localStorage.getItem('dyn_libros')||'[]');
+    var mundos  = JSON.parse(localStorage.getItem('dyn_mundos')||'{}');
+    var libroActivo = null;
+    var secActual = null;
+
+    function guardar(){ localStorage.setItem('dyn_mundos',JSON.stringify(mundos)); }
+    function getMundo(){ if(!libroActivo)return{}; if(!mundos[libroActivo])mundos[libroActivo]={}; return mundos[libroActivo]; }
+    function get(sec,k,def){ var m=getMundo(); return (m[sec]&&m[sec][k]!==undefined)?m[sec][k]:(def!==undefined?def:''); }
+    function set(sec,k,v){ var m=getMundo(); if(!m[sec])m[sec]={}; m[sec][k]=v; guardar(); }
+
+    // ══════════════ ESTRELLAS ══════════════
+    (function(){
+      var c=document.getElementById('starsCanvas');
+      function resize(){ c.width=window.innerWidth; c.height=window.innerHeight; drawStars(); }
+      function drawStars(){
+        var ctx=c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
+        // Fondo gradiente sutil
+        var grd=ctx.createRadialGradient(c.width/2,c.height*.3,0,c.width/2,c.height*.3,c.width*.7);
+        grd.addColorStop(0,'rgba(10,25,60,.4)'); grd.addColorStop(1,'transparent');
+        ctx.fillStyle=grd; ctx.fillRect(0,0,c.width,c.height);
+        // Estrellas pequeñas
+        for(var i=0;i<300;i++){
+          var x=Math.random()*c.width, y=Math.random()*c.height;
+          var r=Math.random()*1.5+0.2, a=Math.random()*.9+.1;
+          ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+          var h=Math.random()>.7?'220,230,255':'200,215,255';
+          ctx.fillStyle='rgba('+h+','+a+')'; ctx.fill();
+        }
+        // Estrellas brillantes con halo
+        for(var i=0;i<25;i++){
+          var x=Math.random()*c.width, y=Math.random()*c.height;
+          ctx.beginPath(); ctx.arc(x,y,2,0,Math.PI*2);
+          ctx.fillStyle='rgba(255,255,255,.95)'; ctx.fill();
+          var halo=ctx.createRadialGradient(x,y,0,x,y,8);
+          halo.addColorStop(0,'rgba(180,210,255,.3)'); halo.addColorStop(1,'transparent');
+          ctx.fillStyle=halo; ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill();
+        }
+        // Vía láctea sutil
+        ctx.save(); ctx.globalAlpha=.04;
+        var band=ctx.createLinearGradient(0,c.height*.2,c.width,c.height*.8);
+        band.addColorStop(0,'transparent'); band.addColorStop(.4,'rgba(150,180,255,1)'); band.addColorStop(.6,'rgba(150,180,255,1)'); band.addColorStop(1,'transparent');
+        ctx.fillStyle=band; ctx.fillRect(0,0,c.width,c.height);
+        ctx.restore();
+      }
+      window.addEventListener('resize',resize); resize();
+    })();
+
+    // ══════════════ TEMAS ══════════════
+    var TEMAS_GENERO={
+      'Romance':    {acc:'#e84080',acc2:'#ff90b8',border:'rgba(232,64,128,.35)',glow:'rgba(232,64,128,.15)',
+                     bg:'radial-gradient(ellipse at 50% 0%,#1a0318 0%,#080008 70%)',nebula1:'rgba(200,30,80,.28)',nebula2:'rgba(150,20,60,.18)',
+                     planet1:'#2a0818',planet2:'#180410',planet3:'#0a0208',stars:'dense'},
+      'Fantasía':   {acc:'#6060e8',acc2:'#9090ff',border:'rgba(96,96,232,.35)',glow:'rgba(96,96,232,.15)',
+                     bg:'radial-gradient(ellipse at 50% 0%,#060830 0%,#020410 70%)',nebula1:'rgba(60,40,180,.3)',nebula2:'rgba(80,20,140,.2)',
+                     planet1:'#0a0828',planet2:'#050418',planet3:'#020210',stars:'normal'},
+      'Terror':     {acc:'#cc2020',acc2:'#ff4040',border:'rgba(200,20,20,.4)',glow:'rgba(200,20,20,.2)',
+                     bg:'radial-gradient(ellipse at 50% 0%,#150202 0%,#060000 70%)',nebula1:'rgba(180,10,10,.35)',nebula2:'rgba(80,0,0,.22)',
+                     planet1:'#200404',planet2:'#100202',planet3:'#060000',stars:'scarce'},
+      'Ciencia ficción':{acc:'#20c8e8',acc2:'#60e8f8',border:'rgba(32,200,232,.35)',glow:'rgba(32,200,232,.14)',
+                     bg:'radial-gradient(ellipse at 50% 0%,#020c18 0%,#010408 70%)',nebula1:'rgba(20,160,200,.22)',nebula2:'rgba(10,80,120,.16)',
+                     planet1:'#020c18',planet2:'#010810',planet3:'#010406',stars:'dense'},
+      'Misterio':   {acc:'#9070cc',acc2:'#b898ee',border:'rgba(144,112,200,.35)',glow:'rgba(144,112,200,.14)',
+                     bg:'radial-gradient(ellipse at 50% 0%,#090612 0%,#040208 70%)',nebula1:'rgba(80,50,160,.25)',nebula2:'rgba(50,20,100,.18)',
+                     planet1:'#0c0618',planet2:'#060310',planet3:'#030108',stars:'normal'},
+      'Aventura':   {acc:'#e09030',acc2:'#f0b850',border:'rgba(224,144,48,.35)',glow:'rgba(224,144,48,.14)',
+                     bg:'radial-gradient(ellipse at 50% 0%,#120800 0%,#060400 70%)',nebula1:'rgba(180,100,20,.22)',nebula2:'rgba(100,60,10,.16)',
+                     planet1:'#1a0c04',planet2:'#0e0802',planet3:'#060402',stars:'normal'},
+      'Histórico':  {acc:'#c8a030',acc2:'#e0c050',border:'rgba(200,160,48,.35)',glow:'rgba(200,160,48,.12)',
+                     bg:'radial-gradient(ellipse at 50% 0%,#100a02 0%,#060400 70%)',nebula1:'rgba(160,120,20,.2)',nebula2:'rgba(80,60,10,.14)',
+                     planet1:'#18100c',planet2:'#0c0806',planet3:'#060402',stars:'normal'},
+      'Cozy':       {acc:'#d09060',acc2:'#e8b880',border:'rgba(208,144,96,.35)',glow:'rgba(208,144,96,.14)',
+                     bg:'radial-gradient(ellipse at 50% 0%,#100c06 0%,#060402 70%)',nebula1:'rgba(180,120,60,.2)',nebula2:'rgba(100,70,30,.14)',
+                     planet1:'#160e08',planet2:'#0c0806',planet3:'#060402',stars:'dense'},
+    };
+    var TEMAS_ESTETICA={
+      'Gótico':     {planet1:'#0c0808',planet2:'#060404',planet3:'#020202'},
+      'Vintage':    {planet1:'#1e1408',planet2:'#120c04',planet3:'#080402'},
+      'Steampunk':  {planet1:'#1a1008',planet2:'#100a04',planet3:'#080402'},
+      'Cyberpunk':  {planet1:'#040c18',planet2:'#020810',planet3:'#010406'},
+      'Naturalista':{planet1:'#040e04',planet2:'#020802',planet3:'#010401'},
+      'Surreal':    {planet1:'#0e0418',planet2:'#080210',planet3:'#040108'},
+      'Luminoso':   {planet1:'#1a1610',planet2:'#0e0c08',planet3:'#060402'},
+      'Oscuro':     {planet1:'#080808',planet2:'#040404',planet3:'#020202'},
+      'Barroco':    {planet1:'#180e06',planet2:'#0e0804',planet3:'#060402'},
+      'Minimalista':{planet1:'#0c0c0e',planet2:'#060608',planet3:'#030304'},
+    };
+
+    function aplicarTema(){
+      var genero=get('genero','genero','');
+      var estetica=get('estetica','estilo','');
+      var t=TEMAS_GENERO[genero]||null;
+      var te=TEMAS_ESTETICA[estetica]||null;
+      var r=document.documentElement.style;
+
+      if(t){
+        r.setProperty('--theme-accent',t.acc);
+        r.setProperty('--theme-accent2',t.acc2);
+        r.setProperty('--theme-border',t.border);
+        r.setProperty('--theme-glow',t.glow);
+        // Fondo espacio con el color del género
+        document.body.style.background=t.bg;
+        // Nebulosas
+        var n1=document.querySelector('.nebula1');
+        var n2=document.querySelector('.nebula2');
+        if(n1)n1.style.background='radial-gradient(ellipse,'+t.nebula1+' 0%,transparent 70%)';
+        if(n2)n2.style.background='radial-gradient(ellipse,'+t.nebula2+' 0%,transparent 70%)';
+      } else {
+        document.body.style.background='radial-gradient(ellipse at 50% 0%,#0a1628 0%,#04080f 60%)';
+        var n1=document.querySelector('.nebula1');
+        var n2=document.querySelector('.nebula2');
+        if(n1)n1.style.background='radial-gradient(ellipse,rgba(64,128,224,.18) 0%,transparent 70%)';
+        if(n2)n2.style.background='radial-gradient(ellipse,rgba(80,40,200,.14) 0%,transparent 70%)';
+      }
+
+      // Planeta — estética tiene prioridad para color, género como fallback
+      var p1=te?te.planet1:(t?t.planet1:'#081840');
+      var p2=te?te.planet2:(t?t.planet2:'#040c20');
+      var p3=te?te.planet3:(t?t.planet3:'#020610');
+      r.setProperty('--planet-color1',p1);
+      r.setProperty('--planet-color2',p2);
+      r.setProperty('--planet-color3',p3);
+
+      // Decoraciones en el planeta por género
+      var planEl=document.getElementById('planetaEl');
+      planEl.querySelectorAll('.genero-deco').forEach(function(e){e.remove();});
+      if(genero==='Romance'){
+        var d=document.createElement('div'); d.className='genero-deco';
+        d.style.cssText='position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:50%;z-index:5;';
+        d.innerHTML=['❤️','💕','💗','🌹'].map(function(e){
+          return '<span style="position:absolute;font-size:'+(8+Math.random()*12)+'px;left:'+(Math.random()*80+10)+'%;top:'+(Math.random()*80+10)+'%;opacity:'+(0.08+Math.random()*.12)+';transform:rotate('+(Math.random()*360)+'deg)">' +e+'</span>';
+        }).join(''); planEl.appendChild(d);
+      }
+
+      // Actualizar color del mapa en el planeta para que contraste
+      var pm=document.getElementById('planetaMap');
+      if(pm&&pm.classList.contains('visible')){
+        // Usar mix-blend-mode según si planeta es oscuro o claro
+        pm.style.mixBlendMode='screen';
+        pm.style.opacity='.7';
+      }
+    }
+
+    // ══════════════ LIBROS ══════════════
+    function abrirLibros(){
+      var lista=document.getElementById('listaLibros');
+      lista.innerHTML=libros.length?libros.map(function(l,i){
+        return '<div class="libro-item" onclick="selLibro('+i+')">'
+          +'<span style="font-size:20px">📖</span>'
+          +'<div><div class="libro-item-titulo">'+l.titulo+'</div>'
+          +'<div class="libro-item-sub">'+(mundos[l.titulo]?'✦ Mundo en construcción':'Sin mundo todavía')+'</div></div></div>';
+      }).join(''):'<p style="font-size:12px;color:var(--muted);padding:14px;text-align:center;font-style:italic">Crea libros primero en <strong>Empieza a escribir</strong>.</p>';
+      document.getElementById('ovLibros').classList.add('visible');
+    }
+    function selLibro(i){
+      libroActivo=libros[i].titulo;
+      document.getElementById('libroNombre').textContent=libroActivo;
+      cerrarOv('ovLibros');
+      actualizarNodos();
+      aplicarTema();
+      cargarMapaEnPlaneta();
+    }
+    function cerrarOv(id){document.getElementById(id).classList.remove('visible');}
+    function actualizarNodos(){
+      if(!libroActivo)return;
+      var m=getMundo();
+      ['estetica','epoca','mapa','filosofia','narrativa','genero'].forEach(function(s){
+        var id='n'+s.charAt(0).toUpperCase()+s.slice(1);
+        var btn=document.getElementById(id);
+        if(btn) btn.classList.toggle('completo',!!(m[s]&&Object.keys(m[s]).length>0));
+      });
+    }
+
+    // ══════════════ SECCIONES ══════════════
+    var SEC_META={
+      estetica:  {ico:'🎨',tit:'Estética',sub:'El universo visual de tu historia'},
+      epoca:     {ico:'⏳',tit:'Época',sub:'El tiempo en que transcurre tu historia'},
+      mapa:      {ico:'🗺️',tit:'Mapa',sub:'El territorio de tu mundo'},
+      filosofia: {ico:'🏛️',tit:'Filosofía',sub:'Cultura, sociedad y magia'},
+      narrativa: {ico:'📖',tit:'Narrativa',sub:'Cómo está contada tu historia'},
+      genero:    {ico:'🏷️',tit:'Género',sub:'El género y estilo de tu obra'},
+    };
+    function abrirSec(s){
+      if(!libroActivo){abrirLibros();return;}
+      secActual=s;
+      var m=SEC_META[s];
+      document.getElementById('phIco').textContent=m.ico;
+      document.getElementById('phTit').textContent=m.tit;
+      document.getElementById('phSub').textContent=m.sub;
+      var body=document.getElementById('panelBody');
+      body.innerHTML='';
+      ({estetica:rEstetica,epoca:rEpoca,mapa:rMapa,filosofia:rFilosofia,narrativa:rNarrativa,genero:rGenero}[s])(body);
+      document.getElementById('ovSec').classList.add('visible');
+    }
+    function cerrarSec(){
+      cerrarOv('ovSec');
+      actualizarNodos();
+      aplicarTema();
+    }
+
+    // ── Helpers ──
+    function ej(lista,sec,campo){
+      return '<div class="ejemplos">'+lista.map(function(e){
+        var s=get(sec,campo,'').split(',').map(function(v){return v.trim();}).includes(e);
+        return '<span class="ej-tag'+(s?' sel':'')+'" onclick="togEj(this,\''+sec+'\',\''+campo+'\',\''+e+'\')">'+e+'</span>';
+      }).join('')+'</div>';
+    }
+    function togEj(el,sec,campo,val){
+      el.classList.toggle('sel');
+      var v=get(sec,campo,'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+      var i=v.indexOf(val);
+      if(el.classList.contains('sel')){if(i===-1)v.push(val);}else{if(i!==-1)v.splice(i,1);}
+      var inp=document.getElementById('f-'+sec+'-'+campo);
+      if(inp)inp.value=v.join(', ');
+      set(sec,campo,v.join(', '));
+    }
+    function inp(sec,campo,ph,multi){
+      var v=get(sec,campo,''), id='f-'+sec+'-'+campo;
+      return multi
+        ?'<textarea class="campo" id="'+id+'" placeholder="'+ph+'" oninput="set(\''+sec+'\',\''+campo+'\',this.value)">'+v+'</textarea>'
+        :'<input class="campo" id="'+id+'" type="text" placeholder="'+ph+'" value="'+v+'" oninput="set(\''+sec+'\',\''+campo+'\',this.value)">';
+    }
+    function blq(tit,sub,html){
+      return '<div class="bloque"><div class="bloque-titulo">'+tit+'</div>'+(sub?'<div class="bloque-sub">'+sub+'</div>':'')+html+'</div>';
+    }
+
+    // ═══ ESTÉTICA ═══
+    function rEstetica(body){
+      body.innerHTML='<div class="estetica-layout"><div id="esteticaLeft"></div><div class="moodboard-panel"><div class="moodboard-titulo">🖼️ Moodboard</div><div class="moodboard-tools"><button class="mb-btn" onclick="document.getElementById(\'mbInp\').click()">+ Imagen</button><input id="mbInp" type="file" accept="image/*" style="display:none" onchange="addMbImg(this)"><input type="color" value="#0a0500" title="Color fondo" onchange="document.getElementById(\'mbGrid\').style.background=this.value" style="width:28px;height:28px;border:none;border-radius:5px;cursor:pointer;"></div><div class="moodboard-area" id="mbGrid"></div></div></div>';
+      document.getElementById('esteticaLeft').innerHTML=
+        blq('🖼️ Estilo visual','¿Cómo se ve tu mundo?',ej(['Gótico','Vintage','Naturalista','Clásico','Oscuro','Luminoso','Steampunk','Cyberpunk','Barroco','Minimalista','Surreal','Folklore'],'estetica','estilo')+inp('estetica','estilo','Describe el estilo visual...',false))
+        +blq('🎨 Paleta de colores','Hasta 5 colores que representen tu libro','<div class="paleta-wrap" id="paletaWrap"></div>')
+        +blq('🏛️ Arquitectura','',ej(['Medieval','Victoriana','Moderna','Futurista','Orgánica','Romana','Árabe','Japonesa','Indeterminada'],'estetica','arquitectura')+inp('estetica','arquitectura','Describe la arquitectura...',false))
+        +blq('👗 Moda y vestimenta','',ej(['Medieval','Victoriana','Casual','Alta costura','Tribal','Futurista','Armaduras','Túnicas','Indeterminada'],'estetica','moda')+inp('estetica','moda','Describe la moda...',false))
+        +blq('🎭 Arte','',ej(['Anime','Realista','Impresionista','Abstracto','Ilustración clásica','Cómic','Pixel art'],'estetica','arte')+inp('estetica','arte','Estilo artístico...',false))
+        +blq('🌫️ Ambiente','',ej(['Agradable','Frío','Dramático','Misterioso','Cálido','Opresivo','Esperanzador','Melancólico','Épico','Íntimo'],'estetica','ambiente')+inp('estetica','ambiente','Describe el ambiente...',true))
+        +'<button class="btn-guardar" onclick="cerrarSec()">Guardar estética ✨</button>';
+      initPaleta();
+      restaurarMoodboard();
+    }
+    function initPaleta(){
+      var w=document.getElementById('paletaWrap'); if(!w)return;
+      var cols=get('estetica','paleta',[]); if(typeof cols==='string')cols=cols?cols.split(',').map(function(c){return c.trim();}).filter(Boolean):[];
+      w.innerHTML='';
+      for(var i=0;i<5;i++){
+        var col=cols[i]||'';
+        var slot=document.createElement('div'); slot.className='color-slot';
+        var face=document.createElement('div'); face.className='color-slot-face';
+        if(col){face.style.background=col;face.textContent='';}else{face.textContent='+';}
+        var cinp=document.createElement('input'); cinp.type='color'; cinp.value=col||'#C8854A';
+        (function(idx,f){
+          cinp.addEventListener('change',function(e){
+            var c2=get('estetica','paleta',[]); if(typeof c2==='string')c2=c2?c2.split(',').map(function(x){return x.trim();}).filter(Boolean):[];
+            while(c2.length<5)c2.push('');
+            c2[idx]=e.target.value; f.style.background=e.target.value; f.textContent='';
+            set('estetica','paleta',c2.filter(Boolean).join(','));
+            aplicarTema();
+          });
+        })(i,face);
+        slot.appendChild(face); slot.appendChild(cinp); w.appendChild(slot);
+      }
+    }
+    var mbImgs=[];
+    function addMbImg(inp2){
+      var file=inp2.files[0]; if(!file)return;
+      var r=new FileReader();
+      r.onload=function(e){
+        var size=160;
+        mbImgs.push({src:e.target.result,w:size,x:20+Math.random()*100,y:20+Math.random()*80});
+        set('estetica','moodboard',mbImgs);
+        renderMbGrid();
+      }; r.readAsDataURL(file);
+    }
+    function renderMbGrid(){
+      var area=document.getElementById('mbGrid'); if(!area)return;
+      area.innerHTML='';
+      mbImgs.forEach(function(img,i){
+        var wrap=document.createElement('div');
+        wrap.className='mb-img-pegada';
+        wrap.style.left=img.x+'px'; wrap.style.top=img.y+'px'; wrap.style.width=img.w+'px';
+        var ctrls=document.createElement('div'); ctrls.className='mb-img-controls';
+        var sizeInp=document.createElement('input'); sizeInp.type='number'; sizeInp.className='mb-size-input';
+        sizeInp.value=img.w; sizeInp.title='Ancho px';
+        sizeInp.addEventListener('change',function(){
+          mbImgs[i].w=parseInt(this.value)||160;
+          wrap.style.width=mbImgs[i].w+'px';
+          set('estetica','moodboard',mbImgs);
+        });
+        sizeInp.addEventListener('mousedown',function(e){e.stopPropagation();});
+        var delBtn=document.createElement('button'); delBtn.className='mb-ctrl-btn'; delBtn.textContent='✕ Borrar';
+        delBtn.onclick=function(e){e.stopPropagation();mbImgs.splice(i,1);set('estetica','moodboard',mbImgs);renderMbGrid();};
+        ctrls.appendChild(sizeInp); ctrls.appendChild(delBtn);
+        var im=document.createElement('img'); im.src=img.src; im.style.width='100%';
+        wrap.appendChild(ctrls); wrap.appendChild(im);
+        // Drag
+        wrap.addEventListener('mousedown',function(e){
+          if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON') return;
+          e.preventDefault();
+          var ox=wrap.offsetLeft,oy=wrap.offsetTop,sx=e.clientX,sy=e.clientY;
+          function mv(ev){
+            var nx=ox+ev.clientX-sx, ny=oy+ev.clientY-sy;
+            wrap.style.left=Math.max(0,nx)+'px'; wrap.style.top=Math.max(0,ny)+'px';
+          }
+          function mu(){
+            document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',mu);
+            mbImgs[i].x=parseFloat(wrap.style.left); mbImgs[i].y=parseFloat(wrap.style.top);
+            set('estetica','moodboard',mbImgs);
+          }
+          document.addEventListener('mousemove',mv); document.addEventListener('mouseup',mu);
+        });
+        area.appendChild(wrap);
+      });
+    }
+    function restaurarMoodboard(){
+      var saved=get('estetica','moodboard',[]);
+      if(Array.isArray(saved)&&saved.length){mbImgs=saved;setTimeout(renderMbGrid,100);}
+      else mbImgs=[];
+    }
+
+    // ═══ ÉPOCA ═══
+    function rEpoca(body){
+      body.innerHTML=
+        blq('⏳ Período histórico','',ej(['Prehistoria','Antigüedad','Edad Media','Renacimiento','Era industrial','Siglo XX','Contemporánea','Futuro cercano','Futuro lejano','Inventada','Intemporal'],'epoca','periodo')+inp('epoca','periodo','Describe la época...',false))
+        +blq('📅 Años aproximados','',inp('epoca','anos','Ej: Siglo XIII, año 3045...',false))
+        +blq('🌐 Contexto histórico','',inp('epoca','contexto','Guerras, revoluciones, catástrofes...',true))
+        +blq('⚡ Nivel tecnológico','',ej(['Primitivo','Bronce/Hierro','Medieval','Pólvora','Vapor','Electricidad','Nuclear','Digital','IA','Magia como tecnología','Mixto'],'epoca','tecnologia')+inp('epoca','tecnologia','Describe la tecnología...',false))
+        +'<button class="btn-guardar" onclick="cerrarSec()">Guardar época ✨</button>';
+    }
+
+    // ═══ MAPA ═══
+    var mapaCtx = null, dibujando2 = false, modoMapa = 'draw';
+    var regionActiva = null;
+
+    function getRegiones() {
+      var r = get('mapa', 'regiones', []);
+      return Array.isArray(r) ? r : [];
+    }
+    function setRegiones(r) { set('mapa', 'regiones', r); }
+
+    function rMapa(body) {
+      var tieneMapa = get('mapa', 'tieneMapa', '');
+      body.innerHTML =
+        '<div class="bloque"><div class="bloque-titulo">🗺️ ¿Tu historia tiene un mapa?</div>'
+        + '<div class="radio-grupo">'
+        + '<label class="radio-op"><input type="radio" name="tm" value="si" ' + (tieneMapa === 'si' ? 'checked' : '') + ' onchange="toggleMapaUI(\'si\')"><span>Sí, quiero crear un mapa</span></label>'
+        + '<label class="radio-op"><input type="radio" name="tm" value="no" ' + (tieneMapa === 'no' ? 'checked' : '') + ' onchange="toggleMapaUI(\'no\')"><span>No (espacio, sin mapa definido...)</span></label>'
+        + '</div></div>'
+        + '<div id="mapaCanvasUI" style="display:' + (tieneMapa === 'si' ? 'block' : 'none') + '">'
+        + '<div id="regionesPanel"></div>'
+        + '</div>'
+        + '<div id="mapaSinUI" style="display:' + (tieneMapa === 'no' ? 'block' : 'none') + '">'
+        + '<div id="mapaNombresNoMapa"></div>'
+        + '</div>'
+        + '<button class="btn-guardar" onclick="guardarMapa()">Guardar mapa ✨</button>';
+      if (tieneMapa === 'si') renderRegionesPanel();
+      if (tieneMapa === 'no') renderNombresNoMapa();
+    }
+
+    function toggleMapaUI(val) {
+      set('mapa', 'tieneMapa', val);
+      document.getElementById('mapaCanvasUI').style.display = val === 'si' ? 'block' : 'none';
+      document.getElementById('mapaSinUI').style.display   = val === 'no' ? 'block' : 'none';
+      if (val === 'no') renderNombresNoMapa();
+      if (val === 'si') renderRegionesPanel();
+    }
+
+    function renderRegionesPanel() {
+      var panel = document.getElementById('regionesPanel'); if (!panel) return;
+      var regiones = getRegiones();
+      var html = '<div class="bloque">';
+      html += '<div class="bloque-titulo">\uD83C\uDF0D Regiones del mundo</div>';
+      html += '<div class="bloque-sub">Cada regi\u00f3n es un continente, isla o zona. Aparecer\u00e1n en tu planeta.</div>';
+      html += '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">';
+      regiones.forEach(function(reg, i) {
+        html += '<div style="display:flex;align-items:center;gap:8px;background:rgba(232,213,183,.04);border:1px solid rgba(232,213,183,.1);border-radius:10px;padding:10px 14px;">';
+        html += '<span style="font-size:16px">\uD83D\uDDFA\uFE0F</span>';
+        html += '<span style="flex:1;font-size:13px;color:var(--pergamino);font-weight:700">' + reg.nombre + '</span>';
+        if (reg.imagenMapa) html += '<span style="font-size:10px;color:#4a8a4a;background:rgba(74,138,74,.1);border:1px solid rgba(74,138,74,.3);padding:2px 8px;border-radius:10px">\u2713 Generado</span>';
+        html += '<button class="ctool" onclick="editarRegion(' + i + ')">&#9998; Editar</button>';
+        html += '<button class="ctool" onclick="borrarRegion(' + i + ')" style="color:#cc6060;border-color:rgba(200,80,80,.3)">&#x2715;</button>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '<button class="ctool generar" onclick="nuevaRegion()" style="width:100%;padding:10px;text-align:center">+ Nueva regi\u00f3n</button>';
+      html += '</div>';
+      html += '<div id="editorRegion" style="display:none"></div>';
+      panel.innerHTML = html;
+    }
+
+    function nuevaRegion() {
+      var nombre = prompt('Nombre de la región (ej: Continente Norte, Isla del Sur...):');
+      if (!nombre || !nombre.trim()) return;
+      var regiones = getRegiones();
+      regiones.push({ nombre: nombre.trim(), canvasData: '', imagenMapa: '',
+                      posX: 20 + Math.random() * 60, posY: 20 + Math.random() * 60 });
+      setRegiones(regiones);
+      renderRegionesPanel();
+      editarRegion(regiones.length - 1);
+    }
+
+    function borrarRegion(i) {
+      if (!confirm('¿Borrar esta región?')) return;
+      var r = getRegiones(); r.splice(i, 1); setRegiones(r);
+      renderRegionesPanel(); cargarMapasEnPlaneta();
+    }
+
+    function editarRegion(i) {
+      regionActiva = i;
+      var reg = getRegiones()[i];
+      var generado = !!reg.imagenMapa;
+      var editor = document.getElementById('editorRegion'); if (!editor) return;
+      editor.style.display = 'block';
+      editor.innerHTML =
+        '<div class="bloque" style="border:1px solid var(--theme-border);border-radius:12px;padding:16px;background:rgba(14,8,28,.6);margin-top:12px">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+        + '<span style="font-family:\'Playfair Display\',serif;font-size:16px;color:var(--pergamino)">✏️ ' + reg.nombre + '</span>'
+        + '<button class="ctool" onclick="cerrarEditorRegion()" style="margin-left:auto">← Volver</button>'
+        + '</div>'
+        + '<div class="bloque-sub">Dibuja la silueta de esta región. Cuanto más detallada, mejor resultado.</div>'
+        + '<div class="canvas-tools" style="margin-bottom:8px;flex-wrap:wrap;gap:6px">'
+        + '<button class="ctool on" id="cDraw" onclick="setMapaModo(\'draw\')">✏️ Dibujar</button>'
+        + '<button class="ctool" id="cErase" onclick="setMapaModo(\'erase\')">🗑 Borrar</button>'
+        + '<button class="ctool" onclick="limpiarMapaRegion()">✕ Limpiar</button>'
+        + '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)">🎨<input type="color" id="mapaColor" value="#c8a050" style="width:24px;height:22px;border:none;background:none;cursor:pointer;border-radius:3px;padding:0"></label>'
+        + '<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)">Grosor<input type="range" id="mapaGrosor" min="1" max="8" value="2" oninput="document.getElementById(\'mgv\').textContent=this.value" style="width:55px;accent-color:var(--theme-accent)"><span id="mgv">2</span>px</label>'
+        + '<button class="ctool generar" id="btnGenerar" onclick="generarMapaRegion()">'
+        + (generado ? '🔄 Mejorar mapa' : '🗺️ Mejorar mapa') + '</button>'
+        + '</div>'
+        + '<div style="position:relative"><div class="canvas-wrap"><canvas id="mapaCanvas" width="800" height="340"></canvas></div>'
+        + '<div id="mapaStatus" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.7);border-radius:10px;align-items:center;justify-content:center;flex-direction:column;gap:12px">'
+        + '<div style="font-size:28px">🗺️</div>'
+        + '<div id="mapaStatusTxt" style="font-size:13px;color:var(--pergamino);text-align:center"></div>'
+        + '<div style="width:200px;height:4px;background:rgba(255,255,255,.1);border-radius:2px"><div id="mapaProgressBar" style="height:100%;background:var(--theme-accent);border-radius:2px;width:0%;transition:width .5s"></div></div>'
+        + '</div></div>'
+        // Nombres en columnas
+        + '<div style="margin-top:14px">'
+        + '<div class="bloque-titulo" style="font-size:11px;margin-bottom:8px">📍 Nombres en esta región</div>'
+        + '<div id="mapaSidebar" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px"></div>'
+        + '</div></div>';
+      setTimeout(function() { initMapaCanvas(); renderMapaSidebar(); }, 80);
+    }
+
+    function cerrarEditorRegion() {
+      guardarCanvasData(); regionActiva = null;
+      document.getElementById('editorRegion').style.display = 'none';
+      renderRegionesPanel();
+    }
+
+    // ── Sidebar de nombres ──
+    var NOMBRE_GRUPOS = [
+      {k:'continentes',l:'Continentes'},{k:'paises',l:'Países/Reinos'},
+      {k:'ciudades',l:'Ciudades'},{k:'pueblos',l:'Pueblos'},{k:'lugares',l:'Lugares'},
+    ];
+
+    function renderMapaSidebar() {
+      var sb = document.getElementById('mapaSidebar'); if (!sb) return;
+      var regiones = getRegiones();
+      var reg = regionActiva !== null ? regiones[regionActiva] : null;
+      var nombres = (reg && reg.nombres) ? reg.nombres : {};
+      var html = '';
+      NOMBRE_GRUPOS.forEach(function(g) {
+        var items = nombres[g.k] || [];
+        var tags = items.map(function(it){ return '<span class="nombre-tag" draggable="true" ondragstart="dragNombre(event,\''  + it + '\')">' + it + '</span>'; }).join('');
+        html += '<div class="nombre-grupo">';
+        html += '<div class="nombre-label">' + g.l + '</div>';
+        html += '<div class="nombre-tags">' + tags + '</div>';
+        html += '<div class="nombre-input-row">';
+        html += '<input class="nombre-inp" id="ni-' + g.k + '" placeholder="A\u00f1adir..." onkeydown="if(event.key===\'Enter\')addNombreRegion(\'' + g.k + '\')">';
+        html += '<button class="nombre-add" onclick="addNombreRegion(\'' + g.k + '\')">\+</button>';
+        html += '</div></div>';
+      });
+      sb.innerHTML = html;
+    }
+
+    function addNombreRegion(k) {
+      var inp2 = document.getElementById('ni-' + k); if (!inp2) return;
+      var v = inp2.value.trim(); if (!v || regionActiva === null) return;
+      var r = getRegiones();
+      if (!r[regionActiva].nombres) r[regionActiva].nombres = {};
+      if (!r[regionActiva].nombres[k]) r[regionActiva].nombres[k] = [];
+      r[regionActiva].nombres[k].push(v); setRegiones(r);
+      inp2.value = ''; renderMapaSidebar();
+    }
+
+    function renderNombresNoMapa() {
+      var c = document.getElementById('mapaNombresNoMapa'); if (!c) return;
+      c.innerHTML = '<div class="bloque"><div class="bloque-titulo">📍 Elementos de tu mundo</div>'
+        + '<div class="bloque-sub">Escribe los elementos aunque no haya mapa visual.</div></div>'
+        + NOMBRE_GRUPOS.map(function(g) {
+            return blq(g.l, '', inp('mapa', g.k, 'Ej: ' + g.l + '...', false));
+          }).join('');
+    }
+
+    // ── Canvas ──
+    function initMapaCanvas() {
+      var canvas = document.getElementById('mapaCanvas'); if (!canvas) return;
+      canvas.width = canvas.offsetWidth || 700;
+      mapaCtx = canvas.getContext('2d');
+      mapaCtx.lineCap = 'round'; mapaCtx.lineJoin = 'round';
+      mapaCtx.strokeStyle = '#c8a050'; mapaCtx.lineWidth = 2;
+      var r = getRegiones();
+      if (regionActiva !== null && r[regionActiva] && r[regionActiva].canvasData) {
+        var img = new Image();
+        img.onload = function() { mapaCtx.drawImage(img, 0, 0); };
+        img.src = r[regionActiva].canvasData;
+      }
+      canvas.addEventListener('mousedown', function(e) {
+        dibujando2 = true;
+        var rc = canvas.getBoundingClientRect(), sx = canvas.width/rc.width, sy = canvas.height/rc.height;
+        var col = document.getElementById('mapaColor');
+        var grsor = document.getElementById('mapaGrosor');
+        mapaCtx.strokeStyle = col ? col.value : '#c8a050';
+        mapaCtx.lineWidth   = grsor ? parseFloat(grsor.value) : 2;
+        mapaCtx.beginPath(); mapaCtx.moveTo((e.clientX-rc.left)*sx, (e.clientY-rc.top)*sy);
+      });
+      canvas.addEventListener('mousemove', function(e) {
+        if (!dibujando2) return;
+        var rc = canvas.getBoundingClientRect(), sx = canvas.width/rc.width, sy = canvas.height/rc.height;
+        var x = (e.clientX-rc.left)*sx, y = (e.clientY-rc.top)*sy;
+        if (modoMapa === 'erase') { mapaCtx.clearRect(x-18, y-18, 36, 36); }
+        else { mapaCtx.lineTo(x, y); mapaCtx.stroke(); }
+      });
+      document.addEventListener('mouseup', function() {
+        if (dibujando2) { dibujando2 = false; guardarCanvasData(); }
+      });
+
+      // Drop de nombres sobre el canvas
+      var wrap = canvas.parentElement;
+      wrap.addEventListener('dragover', function(e) { e.preventDefault(); });
+      wrap.addEventListener('drop', function(e) {
+        e.preventDefault();
+        var val = e.dataTransfer.getData('text/plain'); if (!val) return;
+        var r = wrap.getBoundingClientRect();
+        crearTagFlotante(val, e.clientX - r.left, e.clientY - r.top);
+      });
+
+      // Restaurar tags guardados de esta región
+      setTimeout(restaurarTagsFlotantes, 120);
+    }
+
+    var dragNombreVal = '';
+    function dragNombre(e, val) { dragNombreVal = val; e.dataTransfer.setData('text/plain', val); }
+
+    function crearTagFlotante(val, x, y, guardado) {
+      var wrap = document.querySelector('.canvas-wrap'); if (!wrap) return;
+      var tag = document.createElement('div');
+      tag.className = 'mapa-tag-flotante';
+      tag.textContent = val;
+      tag.style.left = x + 'px'; tag.style.top = y + 'px';
+      tag.addEventListener('mousedown', function(e) {
+        e.stopPropagation();
+        var ox = parseFloat(tag.style.left), oy = parseFloat(tag.style.top), sx = e.clientX, sy = e.clientY;
+        function mv(ev) { tag.style.left = (ox+ev.clientX-sx)+'px'; tag.style.top = (oy+ev.clientY-sy)+'px'; }
+        function mu() {
+          document.removeEventListener('mousemove',mv); document.removeEventListener('mouseup',mu);
+          guardarTagsFlotantes(); // guardar nueva posición
+        }
+        document.addEventListener('mousemove', mv); document.addEventListener('mouseup', mu);
+      });
+      tag.addEventListener('dblclick', function() {
+        tag.remove();
+        guardarTagsFlotantes(); // guardar al borrar
+      });
+      wrap.appendChild(tag);
+      if (!guardado) guardarTagsFlotantes(); // guardar al crear
+    }
+
+    function guardarTagsFlotantes() {
+      if (regionActiva === null) return;
+      var tags = [];
+      document.querySelectorAll('.mapa-tag-flotante').forEach(function(t) {
+        tags.push({ val: t.textContent, x: parseFloat(t.style.left), y: parseFloat(t.style.top) });
+      });
+      var r = getRegiones();
+      r[regionActiva].tagsFlotantes = tags;
+      setRegiones(r);
+    }
+
+    function restaurarTagsFlotantes() {
+      if (regionActiva === null) return;
+      var r = getRegiones();
+      var tags = r[regionActiva].tagsFlotantes || [];
+      // Limpiar tags existentes primero
+      document.querySelectorAll('.mapa-tag-flotante').forEach(function(t) { t.remove(); });
+      tags.forEach(function(t) { crearTagFlotante(t.val, t.x, t.y, true); });
+    }
+
+    function guardarCanvasData() {
+      var canvas = document.getElementById('mapaCanvas');
+      if (!canvas || regionActiva === null) return;
+      var r = getRegiones(); r[regionActiva].canvasData = canvas.toDataURL(); setRegiones(r);
+    }
+
+    function setMapaModo(m) {
+      modoMapa = m;
+      var d = document.getElementById('cDraw'), er = document.getElementById('cErase');
+      if (d) d.classList.toggle('on', m === 'draw');
+      if (er) er.classList.toggle('on', m === 'erase');
+    }
+
+    function limpiarMapaRegion() {
+      if (mapaCtx) mapaCtx.clearRect(0, 0, mapaCtx.canvas.width, mapaCtx.canvas.height);
+      if (regionActiva === null) return;
+      var r = getRegiones(); r[regionActiva].canvasData = ''; r[regionActiva].imagenMapa = '';
+      setRegiones(r); cargarMapasEnPlaneta();
+    }
+
+    // ── Generación con HuggingFace ──
+    function generarMapaRegion() {
+      if (regionActiva === null) return;
+      var canvas = document.getElementById('mapaCanvas');
+      if (!canvas || !mapaCtx) return;
+
+      // Verificar que hay algo dibujado
+      var datos = mapaCtx.getImageData(0, 0, canvas.width, canvas.height).data;
+      var hayTrazo = false;
+      for (var n = 3; n < datos.length; n += 4) { if (datos[n] > 20) { hayTrazo = true; break; } }
+      if (!hayTrazo) { alert('Dibuja primero la silueta de tu región.'); return; }
+
+      var reg = getRegiones()[regionActiva];
+      var genero = get('genero', 'genero', 'Fantasía') || 'Fantasía';
+
+      // Mostrar overlay de progreso
+      mostrarProgreso('Analizando tu dibujo...', 10);
+
+      // Guardar el dibujo antes de generar
+      guardarCanvasData();
+
+      var btn = document.getElementById('btnGenerar');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Generando...'; }
+
+      // Describir las formas del dibujo para el prompt
+      var formas = describirFormas(canvas);
+
+      // Llamar al servlet backend
+      var intentos = 0;
+      // Safety timeout: si en 120s no hay respuesta, resetear el botón
+      var safetyTimer = setTimeout(function() {
+        ocultarProgreso();
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 Mejorar mapa'; }
+        alert('La generación tardó demasiado. Inténtalo de nuevo.');
+      }, 120000);
+
+      function llamarServlet() {
+        intentos++;
+        var msgs = ['Mejorando mapa...', 'Mejorando mapa (puede tardar ~30s)...', 'Mejorando mapa, casi listo...', 'Últimos retoques...'];
+        mostrarProgreso(msgs[Math.min(intentos-1, msgs.length-1)], 20 + intentos * 15);
+
+        fetch('/DayneiraApp/mapa/generar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ genero: genero, nombreRegion: reg.nombre, formas: formas })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.reintenta && intentos < 4) {
+            // Modelo en cold start, reintentar en 8 segundos
+            mostrarProgreso('IA cargando (' + intentos + '/3)... espera unos segundos', 30 + intentos * 15);
+            setTimeout(llamarServlet, 8000);
+            return;
+          }
+          if (data.error) {
+            ocultarProgreso();
+            if (btn) { btn.disabled = false; btn.textContent = '🔄 Mejorar mapa'; }
+            alert('Error mejorando el mapa: ' + data.error);
+            return;
+          }
+          // ¡Éxito! Aplicar imagen al canvas y al planeta
+          clearTimeout(safetyTimer);
+          mostrarProgreso('¡Mapa mejorado! Aplicando...', 90);
+          aplicarImagenMapa(data.imagen);
+        })
+        .catch(function(err) {
+          clearTimeout(safetyTimer);
+          ocultarProgreso();
+          if (btn) { btn.disabled = false; btn.textContent = '🔄 Mejorar mapa'; }
+          console.error('Error mapa:', err);
+          alert('No se pudo conectar con el servidor. Asegúrate de que Tomcat está corriendo.');
+        });
+      }
+
+      llamarServlet();
+    }
+
+    function aplicarImagenMapa(dataUrl) {
+      var canvas = document.getElementById('mapaCanvas');
+      if (canvas && mapaCtx) {
+        var img = new Image();
+        img.onload = function() {
+          // Mostrar el mapa generado en el canvas (el usuario puede seguir dibujando encima)
+          mapaCtx.clearRect(0, 0, canvas.width, canvas.height);
+          mapaCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Guardar el canvas con la imagen generada (para poder seguir editando)
+          var r = getRegiones();
+          r[regionActiva].canvasData = canvas.toDataURL();
+
+          // Para el planeta: usar la imagen completa sin recortar (el círculo se hace en cargarMapasEnPlaneta)
+          r[regionActiva].imagenMapa = dataUrl;
+          setRegiones(r);
+          cargarMapasEnPlaneta();
+
+          ocultarProgreso();
+          var btn = document.getElementById('btnGenerar');
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = '🔄 Mejorar mapa';
+            btn.style.background = 'rgba(80,144,255,.15)';
+            btn.style.borderColor = 'var(--theme-accent)';
+            btn.style.color = 'var(--theme-accent2)';
+          }
+        };
+        img.src = dataUrl;
+      }
+    }
+
+    function describirFormas(canvas) {
+      // Analiza el canvas para dar información al prompt sobre la forma
+      var ctx = canvas.getContext('2d');
+      var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      var w = canvas.width, h = canvas.height;
+      var pixeles = 0, minX = w, maxX = 0, minY = h, maxY = 0;
+      for (var i = 0; i < w * h; i++) {
+        if (data[i*4+3] > 20) {
+          pixeles++;
+          var x = i % w, y = Math.floor(i / w);
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+      var anchoRel = (maxX - minX) / w;
+      var altoRel  = (maxY - minY) / h;
+      var descripcion = 'irregular land mass';
+      if (anchoRel > 0.7) descripcion = 'wide continent spanning the map';
+      else if (altoRel > 0.7) descripcion = 'tall vertical continent';
+      else if (anchoRel < 0.3 && altoRel < 0.3) descripcion = 'small island';
+      else if (anchoRel > altoRel * 1.5) descripcion = 'elongated horizontal landmass';
+      else descripcion = 'medium sized continent with irregular coastline';
+      return descripcion;
+    }
+
+    function mostrarProgreso(txt, pct) {
+      var overlay = document.getElementById('mapaStatus');
+      var txtEl   = document.getElementById('mapaStatusTxt');
+      var bar     = document.getElementById('mapaProgressBar');
+      if (overlay) { overlay.style.display = 'flex'; }
+      if (txtEl)   { txtEl.textContent = txt; }
+      if (bar)     { bar.style.width = pct + '%'; }
+    }
+
+    function ocultarProgreso() {
+      var overlay = document.getElementById('mapaStatus');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    function guardarMapa() { guardarCanvasData(); cerrarSec(); }
+
+    // Carga todas las regiones en el canvas circular del planeta
+    function cargarMapasEnPlaneta() {
+      var pm = document.getElementById('planetaMap'); if (!pm) return;
+      var pc = document.getElementById('planetaMapCanvas');
+      var regiones = getRegiones().filter(function(r) { return !!r.imagenMapa; });
+
+      if (regiones.length === 0) {
+        pm.classList.remove('visible');
+        if (pc) { var ctx = pc.getContext('2d'); ctx.clearRect(0,0,pc.width,pc.height); }
+        return;
+      }
+
+      var size = 480;
+      if (pc) { pc.width = size; pc.height = size; }
+
+      // Usar el canvas del planeta directamente
+      var cCtx = pc ? pc.getContext('2d') : null;
+      if (!cCtx) return;
+
+      // Recorte circular
+      cCtx.clearRect(0, 0, size, size);
+      cCtx.save();
+      cCtx.beginPath();
+      cCtx.arc(size/2, size/2, size/2 - 2, 0, Math.PI*2);
+      cCtx.clip();
+
+      var loaded = 0;
+      regiones.forEach(function(reg, idx) {
+        var img = new Image();
+        img.onload = function() {
+          // Escalar cover para rellenar el círculo
+          var scale = Math.max(size / img.width, size / img.height);
+          var sw = img.width * scale, sh = img.height * scale;
+          var ox = (size - sw) / 2, oy = (size - sh) / 2;
+
+          if (idx === 0) {
+            cCtx.globalAlpha = 0.85;
+            cCtx.globalCompositeOperation = 'source-over';
+          } else {
+            cCtx.globalAlpha = 0.7;
+            cCtx.globalCompositeOperation = 'screen';
+          }
+          cCtx.drawImage(img, ox, oy, sw, sh);
+          loaded++;
+          if (loaded === regiones.length) {
+            cCtx.restore();
+            pm.style.background = 'none';
+            pm.style.mixBlendMode = 'screen';
+            pm.style.opacity = '0.8';
+            pm.classList.add('visible');
+          }
+        };
+        img.src = reg.imagenMapa;
+      });
+    }
+
+    function cargarMapaEnPlaneta() { cargarMapasEnPlaneta(); }
+
+    // ═══ FILOSOFÍA ═══
+    function rFilosofia(body){
+      body.innerHTML=
+        '<div class="tabs-filo"><button class="tab-filo on" onclick="tabFilo(\'cultura\',this)">🏺 Cultura</button><button class="tab-filo" onclick="tabFilo(\'sociedad\',this)">⚖️ Sociedad</button><button class="tab-filo" onclick="tabFilo(\'magia\',this)">✨ Magia</button><button class="tab-filo" onclick="tabFilo(\'ideas\',this)">💡 Ideas</button></div>'
+        +'<div class="tab-c visible" id="tc-cultura">'
+        +blq('🙏 Religiones','',inp('filosofia','religiones','Dioses, creencias...',true))
+        +blq('🎊 Tradiciones','',inp('filosofia','tradiciones','Costumbres, festividades...',true))
+        +blq('🗣️ Idiomas','',inp('filosofia','idiomas','Lenguas, dialectos...',false))
+        +blq('🍽️ Gastronomía','',inp('filosofia','gastronomia','Platos, ingredientes especiales...',true))
+        +'</div>'
+        +'<div class="tab-c" id="tc-sociedad">'
+        +blq('🏛️ Sistema político','',ej(['Monarquía','República','Dictadura','Teocracia','Imperio','Feudalismo','Inventado'],'filosofia','politica')+inp('filosofia','politica','Describe el sistema...',true))
+        +blq('💰 Economía','',inp('filosofia','economia','Moneda, comercio...',true))
+        +blq('📊 Clases sociales','',inp('filosofia','clases','Nobleza, castas...',true))
+        +blq('⚖️ Leyes','',inp('filosofia','leyes','Delitos, castigos...',true))
+        +blq('💼 Profesiones','',inp('filosofia','profesiones','Oficios, gremios...',true))
+        +'</div>'
+        +'<div class="tab-c" id="tc-magia">'
+        +blq('✨ Magia / Tecnología','',inp('filosofia','magia','¿Cómo funciona?',true))
+        +blq('📏 Reglas y límites','',inp('filosofia','reglasMagia','¿Qué precio tiene?',true))
+        +blq('🔮 Artefactos','',inp('filosofia','artefactos','Objetos especiales...',true))
+        +blq('🐉 Criaturas','',inp('filosofia','criaturas','Bestias, razas...',true))
+        +'</div>'
+        +'<div class="tab-c" id="tc-ideas">'
+        +blq('💭 Filosofía del mundo','',inp('filosofia','filosofiaMundo','¿Qué creen sobre la vida?',true))
+        +blq('⚖️ Valores y moral','',inp('filosofia','valores','¿Qué es el bien y el mal aquí?',true))
+        +blq('📌 Temas principales','',ej(['Amor','Poder','Libertad','Identidad','Muerte','Redención','Guerra','Fe'],'filosofia','temas')+inp('filosofia','temas','Temas...',false))
+        +blq('💬 Mensaje','',inp('filosofia','mensaje','¿Qué quieres transmitir?',true))
+        +'</div>'
+        +'<button class="btn-guardar" onclick="cerrarSec()">Guardar filosofía ✨</button>';
+    }
+    function tabFilo(id,btn){
+      document.querySelectorAll('.tab-c').forEach(function(t){t.classList.remove('visible');});
+      document.querySelectorAll('.tab-filo').forEach(function(t){t.classList.remove('on');});
+      document.getElementById('tc-'+id).classList.add('visible');
+      btn.classList.add('on');
+    }
+
+    // ═══ NARRATIVA ═══
+    function rNarrativa(body){
+      body.innerHTML=
+        blq('👤 Tipo de narrador','',ej(['Primera persona','Segunda persona','Tercera omnisciente','Tercera limitada','Narrador múltiple'],'narrativa','narrador')+inp('narrativa','narrador','Tipo de narrador...',false))
+        +blq('⏱️ Tiempo verbal','',ej(['Presente','Pasado','Futuro','Mixto'],'narrativa','tiempoVerbal')+inp('narrativa','tiempoVerbal','Tiempo verbal...',false))
+        +blq('✍️ Estilo literario','',ej(['Descriptivo','Minimalista','Poético','Coloquial','Epistolar','Stream of consciousness'],'narrativa','estilo')+inp('narrativa','estilo','Estilo literario...',true))
+        +blq('📐 Estructura','',ej(['Lineal','No lineal','Circular','Deductiva','Inductiva','In media res','Fragmentada'],'narrativa','estructura')+inp('narrativa','estructura','Estructura...',false))
+        +blq('📚 Capítulos estimados','',inp('narrativa','capitulos','Ej: 30 capítulos, trilogía...',false))
+        +'<button class="btn-guardar" onclick="cerrarSec()">Guardar narrativa ✨</button>';
+    }
+
+    // ═══ GÉNERO ═══
+    var COL_GENERO={
+      'Romance':    {bg:'linear-gradient(135deg,#3a0812,#1a0408)',borde:'#8a2030',acc:'#e84060',ico:'❤️'},
+      'Fantasía':   {bg:'linear-gradient(135deg,#081840,#040c20)',borde:'#2040a0',acc:'#80b0ff',ico:'🔮'},
+      'Terror':     {bg:'linear-gradient(135deg,#200808,#100404)',borde:'#5a0a0a',acc:'#cc3333',ico:'💀'},
+      'Ciencia ficción':{bg:'linear-gradient(135deg,#041830,#020c18)',borde:'#0a4060',acc:'#40c0e0',ico:'🚀'},
+      'Misterio':   {bg:'linear-gradient(135deg,#0c0c18,#060610)',borde:'#303060',acc:'#8080cc',ico:'🔍'},
+      'Aventura':   {bg:'linear-gradient(135deg,#301808,#180c04)',borde:'#8a4a10',acc:'#e0a040',ico:'⚔️'},
+      'Histórico':  {bg:'linear-gradient(135deg,#281408,#140a04)',borde:'#7a5a10',acc:'#c8a040',ico:'📜'},
+      'Cozy':       {bg:'linear-gradient(135deg,#201008,#120804)',borde:'#6a4020',acc:'#c8a060',ico:'☕'},
+      'Otro':       {bg:'linear-gradient(135deg,#0e0702,#1a0f06)',borde:'#3a1a06',acc:'#C8854A',ico:'📖'},
+    };
+    function rGenero(body){
+      var genero=get('genero','genero','');
+      var col=COL_GENERO[genero]||COL_GENERO['Otro'];
+      body.innerHTML=
+        blq('🏷️ Género principal','(Obligatorio)',
+          '<div class="ejemplos">'+Object.keys(COL_GENERO).map(function(g){
+            return '<span class="ej-tag'+(genero===g?' sel':'')+'" onclick="selGenero(this,\''+g+'\')">'+g+'</span>';
+          }).join('')+'</div>'+inp('genero','genero','Escribe el género...',false))
+        +blq('📌 Subgénero','',ej(['Dark romance','High fantasy','Distopía','Space opera','Thriller','Slice of life','Épica','Urban fantasy'],'genero','subgenero')+inp('genero','subgenero','Subgénero...',false))
+        +blq('👥 Público objetivo','',ej(['Infantil','Middle grade','Young Adult','New Adult','Adulto'],'genero','publico'))
+        +blq('🔞 Clasificación por edades','',ej(['Todos','8+','12+','14+','16+','18+'],'genero','edad'))
+        +blq('⚔️ Nivel de violencia','',ej(['Sin violencia','Leve','Moderada','Explícita'],'genero','violencia'))
+        +blq('💫 Tropes','',ej(['Enemies to lovers','Chosen one','Viaje del héroe','Found family','Slow burn','Redemption arc','Forbidden love','Second chance'],'genero','tropes')+inp('genero','tropes','Más tropes...',false))
+        +'<div class="genero-preview" id="genPrev" style="background:'+col.bg+';border:1px solid '+col.borde+'">'
+        +'<div style="font-size:24px">'+col.ico+'</div>'
+        +'<div style="font-family:\'Playfair Display\',serif;font-size:17px;color:'+col.acc+';margin:6px 0">'+(genero||'Tu género')+'</div>'
+        +'<div style="font-size:11px;color:rgba(255,255,255,.4)">El tema visual adoptará este estilo</div>'
+        +'</div>'
+        +'<button class="btn-guardar" onclick="cerrarSec()">Guardar género ✨</button>';
+    }
+    function selGenero(el,g){
+      document.querySelectorAll('.ej-tag').forEach(function(t){t.classList.remove('sel');});
+      el.classList.add('sel');
+      set('genero','genero',g);
+      var inp2=document.getElementById('f-genero-genero');if(inp2)inp2.value=g;
+      var col=COL_GENERO[g]||COL_GENERO['Otro'];
+      var prev=document.getElementById('genPrev');
+      if(prev){
+        prev.style.background=col.bg;prev.style.borderColor=col.borde;
+        prev.querySelector('div').textContent=col.ico;
+        prev.querySelectorAll('div')[1].style.color=col.acc;
+        prev.querySelectorAll('div')[1].textContent=g;
+      }
+      aplicarTema();
+    }
+
+    // ══════════════ ONÍREA ══════════════
+    var chatH=[];
+    function abrirOnirea(){
+      document.getElementById('ovOnirea').classList.add('visible');
+      document.getElementById('chatInp').focus();
+    }
+    function enviarChat(){
+      var inp2=document.getElementById('chatInp'),txt=inp2.value.trim();if(!txt)return;
+      inp2.value='';
+      addMsg(txt,'user');chatH.push({role:'user',content:txt});
+      document.getElementById('chatTyping').classList.add('visible');
+      document.getElementById('chatMsgs').scrollTop=9999;
+      // Temas que Onírea ya ha preguntado para no repetir
+    var onireaTemasUsados=[];
+    var onireaTemas=['colores','arquitectura','clima','sonidos','criaturas','magia','conflicto','protagonista','paisaje','sociedad'];
+
+    function getSysOnirea(){
+      var temasLibres=onireaTemas.filter(function(t){return onireaTemasUsados.indexOf(t)===-1;});
+      if(temasLibres.length===0){ onireaTemasUsados=[]; temasLibres=onireaTemas.slice(); }
+      var proximoTema=temasLibres[Math.floor(Math.random()*temasLibres.length)];
+      onireaTemasUsados.push(proximoTema);
+      return 'Eres Onirea, la musa creativa de Dayneira. Ayudas a escritores a imaginar mundos.\nREGLAS CRITICAS:\n1. Responde SIEMPRE en espanol, tono calido y poetico.\n2. LEE el historial. NUNCA repitas una pregunta ya hecha.\n3. El proximo tema que DEBES preguntar es: '+proximoTema+'. Hazlo de forma creativa.\n4. Antes de preguntar da 2-3 ideas visuales concretas basadas en lo que el usuario dijo. Si dice bosque propón: bosques de arboles con corteza plateada, selvas donde la lluvia sube en vez de bajar...\n5. Maximo 4 frases + 1 pregunta sobre: '+proximoTema+'\n6. NUNCA inventes partes de la historia. Solo ofreces opciones.';
+    }
+
+      fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-6',
+          max_tokens:600,
+          system:getSysOnirea(),
+          messages:chatH
+        })
+      }).then(function(r){
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        return r.json();
+      }).then(function(d){
+        document.getElementById('chatTyping').classList.remove('visible');
+        var t=(d.content&&d.content[0]&&d.content[0].text)?d.content[0].text:'';
+        if(!t) t='Cuéntame algo más sobre tu historia... ¿qué sensación quieres que tenga el lector al entrar en tu mundo? 🌙';
+        addMsg(t,'ia');
+        chatH.push({role:'assistant',content:t});
+        document.getElementById('chatMsgs').scrollTop=9999;
+      }).catch(function(err){
+        document.getElementById('chatTyping').classList.remove('visible');
+        console.error('Onírea error:',err);
+        // Fallback con respuestas variadas según el último mensaje del usuario
+        var ultimo=chatH.length>0?chatH[chatH.length-1].content.toLowerCase():'';
+        var fallbacks=[
+          'Imagina que ese lugar tiene una luz que no viene del sol... ¿de qué color sería esa luz en tu mundo? 🌙',
+          'Cada mundo tiene un sonido que lo define. ¿Cuál sería el sonido más característico del tuyo?',
+          'Piensa en el olor de tu mundo. ¿Huele a tierra mojada, a metal frío, a especias exóticas...?',
+          '¿Qué temperatura tiene tu mundo? ¿Hay estaciones, o el clima es siempre el mismo?',
+          '¿Quién vive en ese lugar? ¿Humanos, criaturas fantásticas, una mezcla de ambos?',
+        ];
+        var idx=chatH.length%fallbacks.length;
+        addMsg(fallbacks[idx],'ia');
+        chatH.push({role:'assistant',content:fallbacks[idx]});
+      });
+    }
+    function addMsg(txt,tipo){
+      var d=document.createElement('div');d.className='msg '+tipo;
+      d.innerHTML=txt.replace(/\n/g,'<br>');
+      document.getElementById('chatMsgs').appendChild(d);
+      document.getElementById('chatMsgs').scrollTop=9999;
+    }
+
+    // ══════════════ INIT ══════════════
+    if(libros.length){
+      libroActivo=libros[0].titulo;
+      document.getElementById('libroNombre').textContent=libroActivo;
+      actualizarNodos();aplicarTema();cargarMapaEnPlaneta();
+    }
+    document.getElementById('chatInp').addEventListener('keydown',function(e){if(e.key==='Enter')enviarChat();});
+</script>
+</body>
+</html>

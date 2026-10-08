@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira — Registro</title>
+    <link rel="stylesheet" th:href="@{/CSS/main.css}">
+</head>
+<body class="auth-body">
+<div class="auth-card">
+    <div class="auth-logo">✦ Dayneira</div>
+    <p class="auth-subtitulo">Crea tu cuenta de artista</p>
+    <div th:if="${error}" class="alerta alerta-error" th:text="${error}"></div>
+    <form th:action="@{/usuario/registro}" method="post">
+        <div class="campo">
+            <label for="username">Nombre de artista</label>
+            <input type="text" id="username" name="username" placeholder="Como quieres que te llamemos?" required>
+        </div>
+        <div class="campo">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="tu@email.com" required>
+        </div>
+        <div class="campo">
+            <label for="password">Contrasena</label>
+            <input type="password" id="password" name="password" placeholder="Minimo 8 caracteres" required minlength="8">
+        </div>
+        <div class="campo">
+            <label for="password2">Repite la contrasena</label>
+            <input type="password" id="password2" name="password2" placeholder="Igual que la anterior" required minlength="8">
+        </div>
+        <button type="submit" class="btn-auth">Crear cuenta →</button>
+    </form>
+    <p class="auth-link">
+        Ya tienes cuenta? <a th:href="@{/usuario/login}">Inicia sesion</a>
+    </p>
+</div>
+</body>
+</html>

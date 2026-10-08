@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira - Estructura del libro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --crema:     #FDF6EC;
+            --crema2:    #F4EBD8;
+            --marron:    #2C1A0E;
+            --ambar:     #C8854A;
+            --ambar2:    #E8A96A;
+            --pergamino: #E8D5B7;
+            --caoba:     #6B4226;
+            --suave:     #F9F2E7;
+            --muted:     #8B6E52;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Baloo 2', sans-serif; background: var(--crema); color: var(--marron); min-height: 100vh; }
+
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 14px 40px; background: var(--marron); position: sticky; top: 0; z-index: 200; }
+        .navbar-logo a { font-family: 'Playfair Display', serif; color: var(--pergamino); font-size: 22px; font-weight: 700; text-decoration: none; }
+        .user-menu-wrapper { position: relative; }
+        .btn-username { background: rgba(232,213,183,0.1); border: 1px solid rgba(232,213,183,0.25); color: var(--ambar2); font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 700; padding: 7px 18px; border-radius: 20px; cursor: pointer; }
+        .user-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: white; border: 1px solid var(--pergamino); border-radius: 12px; min-width: 220px; box-shadow: 0 8px 32px rgba(44,26,14,0.15); overflow: hidden; z-index: 300; }
+        .user-dropdown.abierto { display: block; }
+        .dropdown-item { display: block; padding: 12px 18px; font-size: 14px; color: var(--marron); text-decoration: none; transition: background 0.15s; }
+        .dropdown-item:hover { background: var(--suave); }
+        .dropdown-sep { height: 1px; background: var(--pergamino); margin: 4px 0; }
+        .dropdown-logout { color: #c0392b; }
+
+        .hero { background: linear-gradient(135deg, var(--marron), var(--caoba)); padding: 50px 40px 44px; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content: '📚'; position: absolute; font-size: 200px; opacity: 0.04; right: 60px; top: -20px; }
+        .hero-tag { font-size: 11px; font-weight: 700; color: var(--ambar2); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 12px; display: block; }
+        .hero-titulo { font-family: 'Playfair Display', serif; font-size: 38px; color: var(--pergamino); margin-bottom: 16px; }
+        .hero-frase { font-family: 'Playfair Display', serif; font-size: 16px; color: rgba(232,213,183,0.85); max-width: 600px; margin: 0 auto; line-height: 1.9; font-style: italic; }
+
+        .page-wrapper { max-width: 1100px; margin: 0 auto; padding: 48px 24px 80px; }
+        .btn-volver { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 700; margin-bottom: 40px; transition: color 0.2s; }
+        .btn-volver:hover { color: var(--ambar); }
+
+        /* LIBRO CERRADO */
+        .libro-scene { display: flex; justify-content: center; }
+
+        .libro-cerrado {
+            width: 300px; height: 420px;
+            background: linear-gradient(to right, #3a1a06 0%, #5a2e12 9%, #7B3F1A 14%, #c8956a 15%, #e8d5b0 100%);
+            border-radius: 3px 12px 12px 3px;
+            border: 1.5px solid #a07040;
+            box-shadow: 7px 7px 0 #8B6040, 14px 14px 0 rgba(139,96,64,0.3);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+            cursor: pointer; transition: transform 0.25s, box-shadow 0.25s;
+            padding: 28px 22px; position: relative;
+        }
+        .libro-cerrado:hover { transform: translateY(-6px) rotate(1deg); box-shadow: 10px 12px 0 #8B6040, 20px 20px 0 rgba(139,96,64,0.2); }
+        .libro-cerrado-deco { width: 70px; height: 1px; background: #a07040; }
+        .libro-cerrado-titulo { font-family: 'Playfair Display', serif; font-size: 26px; color: #3a1a06; font-weight: 700; text-align: center; letter-spacing: 1px; }
+        .libro-cerrado-autor { font-size: 14px; color: #6B4226; text-align: center; }
+        .libro-cerrado-hint { font-size: 11px; color: #8B6040; text-align: center; margin-top: 20px; font-style: italic; }
+
+        /* LIBRO ABIERTO */
+        .libro-abierto { display: none; width: 100%; }
+        .libro-abierto.visible { display: flex; }
+
+        .pagina-izq {
+            width: 300px; min-height: 580px; flex-shrink: 0;
+            background: linear-gradient(to right, #ddd0b0 0%, #e8dfc8 15%, #ede4cc 100%);
+            border: 1.5px solid #b09060;
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            border-left: 16px solid #4a1e08;
+            box-shadow: -5px 5px 0 #8B6040;
+            padding: 24px 16px;
+            display: flex; flex-direction: column; gap: 3px;
+            position: relative;
+        }
+
+        /* línea de encuadernación */
+        .pagina-izq::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 10px; bottom: 10px;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #c8a878 20%, #c8a878 80%, transparent);
+        }
+
+        .pagina-der {
+            flex: 1; min-height: 580px;
+            background: linear-gradient(to left, #f5ede0 0%, #faf4e8 100%);
+            border: 1.5px solid #b09060;
+            border-left: 1px solid #d5c5a0;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 5px 5px 0 #8B6040;
+            padding: 30px 28px;
+            overflow-y: auto;
+        }
+
+        /* sombra de lomo en página derecha */
+        .pagina-der::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 18px;
+            background: linear-gradient(to right, rgba(100,60,20,0.12), transparent);
+            pointer-events: none;
+        }
+        .pagina-der { position: relative; }
+
+        /* líneas de página */
+        .pagina-der::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(transparent, transparent 28px, rgba(180,150,100,0.12) 28px, rgba(180,150,100,0.12) 29px);
+            border-radius: 0 12px 12px 0;
+            pointer-events: none;
+        }
+
+        /* ÍNDICE */
+        .indice-titulo { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: #3a1a06; text-align: center; margin-bottom: 10px; letter-spacing: 1px; }
+        .indice-sep { height: 1px; background: #b09060; margin: 6px 0; }
+
+        .indice-item {
+            display: flex; align-items: center; gap: 7px;
+            padding: 7px 8px; border-radius: 6px;
+            cursor: pointer; transition: background 0.15s;
+            font-size: 13px; color: #3a1a06;
+            border: none; background: none; width: 100%; text-align: left;
+            font-family: 'Baloo 2', sans-serif; font-weight: 700;
+        }
+        .indice-item:hover { background: rgba(120,70,30,0.15); }
+        .indice-item.activo { background: #5a2e12; color: white; border-radius: 6px; }
+        .indice-item.activo .item-dot { background: var(--ambar2); }
+        .indice-item.activo .item-num { color: rgba(255,255,255,0.5); }
+        .item-dot { width: 6px; height: 6px; border-radius: 50%; background: #7B3F1A; flex-shrink: 0; transition: background 0.2s; }
+        .item-num { font-size: 10px; color: #8B6040; min-width: 18px; font-weight: 700; }
+
+        .btn-cerrar-libro {
+            background: #4a1e08; color: #f5ede0;
+            border: none; padding: 8px 14px; border-radius: 10px;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+            font-family: 'Baloo 2', sans-serif; margin-top: 10px;
+            width: 100%; transition: background 0.2s;
+        }
+        .btn-cerrar-libro:hover { background: #2C1A0E; }
+
+        /* PÁGINA DERECHA - contenido */
+        .der-placeholder {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; height: 100%; gap: 14px;
+            color: #8B6040; font-size: 14px; text-align: center; min-height: 460px;
+            position: relative; z-index: 1;
+        }
+
+        .der-parte { display: none; position: relative; z-index: 1; }
+        .der-parte.visible { display: block; animation: fade 0.25s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .der-num { font-size: 10px; font-weight: 700; color: var(--ambar); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 3px; }
+        .der-titulo { font-family: 'Playfair Display', serif; font-size: 26px; color: #3a1a06; margin-bottom: 10px; font-weight: 700; line-height: 1.2; }
+        .der-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 12px; border-radius: 20px; margin-bottom: 14px; }
+        .b-oblig  { background: #FFF3E0; color: #92400E; }
+        .b-opc    { background: #F3E5F5; color: #6B21A8; }
+        .b-rec    { background: #ECFDF5; color: #065F46; }
+        .b-seg    { background: #EFF6FF; color: #1E40AF; }
+
+        .der-desc { font-size: 14px; color: #3a1a06; line-height: 1.9; margin-bottom: 16px; }
+        .tips-label { font-size: 10px; font-weight: 700; color: #7B3F1A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .der-tips { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .der-tips li { font-size: 13px; color: #4a2010; display: flex; gap: 8px; line-height: 1.6; font-weight: 600; }
+        .der-tips li::before { content: '✦'; color: var(--ambar); flex-shrink: 0; font-size: 9px; margin-top: 4px; }
+
+        .der-ej { background: rgba(139,96,64,0.1); border-left: 3px solid var(--ambar); border-radius: 0 8px 8px 0; padding: 12px 14px; margin-bottom: 14px; }
+        .der-ej-label { font-size: 10px; font-weight: 700; color: #7B3F1A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .der-ej p { font-family: 'Playfair Display', serif; font-size: 13px; color: #4a2010; font-style: italic; line-height: 1.7; }
+
+        /* PALETA DE COLORES */
+        .paleta-section { margin-top: 16px; }
+        .paleta-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+        .paleta-tab {
+            padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700;
+            cursor: pointer; border: 1.5px solid #b09060; background: transparent;
+            color: #4a2010; font-family: 'Baloo 2', sans-serif; transition: all 0.2s;
+        }
+        .paleta-tab:hover { background: rgba(139,96,64,0.15); }
+        .paleta-tab.activo { background: #5a2e12; color: white; border-color: #5a2e12; }
+
+        .paleta-panel { display: none; }
+        .paleta-panel.visible { display: block; animation: fade 0.2s ease; }
+
+        .paleta-desc { font-size: 12px; color: #5a3a1a; line-height: 1.7; margin-bottom: 12px; }
+
+        .paleta-grid { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+        .paleta-color {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .color-muestra { width: 48px; height: 48px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); }
+        .color-nombre { font-size: 9px; color: #5a3a1a; text-align: center; font-weight: 700; max-width: 52px; }
+
+        .paleta-ejemplo {
+            border-radius: 10px; overflow: hidden; border: 1px solid #b09060;
+            margin-top: 8px;
+        }
+        .paleta-ejemplo-portada {
+            padding: 16px 20px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+        }
+        .pe-titulo { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; text-align: center; }
+        .pe-autor { font-size: 11px; text-align: center; }
+        .pe-genero { font-size: 9px; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-top: 2px; }
+
+        .teoria-box { background: rgba(200,133,74,0.08); border: 1px solid rgba(200,133,74,0.25); border-radius: 8px; padding: 12px 14px; margin-top: 10px; }
+        .teoria-titulo { font-size: 11px; font-weight: 700; color: #7B3F1A; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+        .teoria-texto { font-size: 12px; color: #4a2010; line-height: 1.7; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-logo"><a th:href="@{/inicio/}">✦ Dayneira</a></div>
+    <div class="navbar-user">
+        <div class="user-menu-wrapper">
+            <button class="btn-username" onclick="toggleMenu()">
+                <span th:text="${username}">artista</span> ▾
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+                <a href="#" class="dropdown-item">Información de la cuenta</a>
+                <div class="dropdown-sep"></div>
+                <a th:href="@{/usuario/logout}" class="dropdown-item dropdown-logout">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="hero">
+    <span class="hero-tag">08 — Aprendizaje</span>
+    <h1 class="hero-titulo">Estructura del libro</h1>
+    <p class="hero-frase">Antes de empezar a escribir tu libro, es importante que conozcas su estructura. Tómala como la base sobre la que construirás tu historia, nunca como una limitación — cuanto mejor la entiendas, más libre serás para adaptarla a tu propia voz.</p>
+</div>
+
+<div class="page-wrapper">
+
+    <a th:href="@{/inicio/}" class="btn-volver">← Volver al inicio</a>
+
+    <div class="libro-scene">
+
+        <div class="libro-cerrado" id="libroCerrado" onclick="abrirLibro()">
+            <div class="libro-cerrado-deco"></div>
+            <div class="libro-cerrado-titulo">Mi historia</div>
+            <div class="libro-cerrado-autor">Dayneira</div>
+            <div class="libro-cerrado-deco"></div>
+            <div class="libro-cerrado-hint">Pulsa para abrir el libro</div>
+        </div>
+
+        <div class="libro-abierto" id="libroAbierto">
+
+            <div class="pagina-izq">
+                <div class="indice-titulo">Índice</div>
+                <div class="indice-sep"></div>
+                <button class="indice-item" id="ii0" onclick="mostrar(0)"><div class="item-dot"></div><span class="item-num">01</span>Portada</button>
+                <button class="indice-item" id="ii1" onclick="mostrar(1)"><div class="item-dot"></div><span class="item-num">02</span>Pág. de derechos</button>
+                <button class="indice-item" id="ii2" onclick="mostrar(2)"><div class="item-dot"></div><span class="item-num">03</span>Dedicatoria</button>
+                <button class="indice-item" id="ii3" onclick="mostrar(3)"><div class="item-dot"></div><span class="item-num">04</span>Epígrafe</button>
+                <button class="indice-item" id="ii4" onclick="mostrar(4)"><div class="item-dot"></div><span class="item-num">05</span>Prólogo</button>
+                <button class="indice-item" id="ii5" onclick="mostrar(5)"><div class="item-dot"></div><span class="item-num">06</span>Introducción</button>
+                <button class="indice-item" id="ii6" onclick="mostrar(6)"><div class="item-dot"></div><span class="item-num">07</span>Capítulos</button>
+                <button class="indice-item" id="ii7" onclick="mostrar(7)"><div class="item-dot"></div><span class="item-num">08</span>Epílogo</button>
+                <button class="indice-item" id="ii8" onclick="mostrar(8)"><div class="item-dot"></div><span class="item-num">09</span>Agradecimientos</button>
+                <button class="indice-item" id="ii9" onclick="mostrar(9)"><div class="item-dot"></div><span class="item-num">10</span>Anexos y glosario</button>
+                <div class="indice-sep"></div>
+                <button class="btn-cerrar-libro" onclick="cerrarLibro()">✕ Cerrar libro</button>
+            </div>
+
+            <div class="pagina-der">
+
+                <div class="der-placeholder" id="derPlaceholder">
+                    <span style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;color:#8B6040">Pulsa una parte del índice<br>para leer su explicación</span>
+                </div>
+
+                <!-- 01 PORTADA -->
+                <div class="der-parte" id="dp0">
+                    <div class="der-num">01</div>
+                    <div class="der-titulo">Portada</div>
+                    <span class="der-badge b-oblig">Obligatoria</span>
+                    <p class="der-desc">La portada es lo primero que ve cualquier persona que se cruce con tu libro, ya sea en una librería, en una pantalla o en manos de alguien. Antes de que nadie lea una sola palabra, ya ha tomado una decisión sobre si quiere abrirlo o no. Por eso la portada no es solo decoración: es comunicación pura. Tiene que transmitir de qué va el libro, a quién va dirigido y qué tono tiene, todo a la vez y en un solo vistazo.</p>
+                    <div class="tips-label">Qué debe incluir</div>
+                    <ul class="der-tips">
+                        <li>El título, que debe verse con claridad desde lejos y a tamaño miniatura</li>
+                        <li>Tu nombre como autor o tu seudónimo</li>
+                        <li>Una imagen, ilustración o composición visual que represente la esencia del libro</li>
+                        <li>Un subtítulo si el título solo no se explica</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">Sobre el título</div>
+                        <p>El título tiene que notarse a primera vista. No importa cuánto te guste una tipografía si luego no se lee bien. Prueba a verlo en miniatura, como si fuera una imagen de perfil: ¿se entiende? ¿destaca? Si no, algo falla.</p>
+                    </div>
+
+                    <div class="paleta-section">
+                        <div class="tips-label" style="margin-bottom:10px">Ejemplos de colorimetría para portadas — distintos estilos</div>
+                        <div class="paleta-tabs">
+                            <button class="paleta-tab activo" onclick="verPaleta(0,this)">Contrastes</button>
+                            <button class="paleta-tab" onclick="verPaleta(1,this)">Análogos</button>
+                            <button class="paleta-tab" onclick="verPaleta(2,this)">Triádicos</button>
+                            <button class="paleta-tab" onclick="verPaleta(3,this)">Monocromático</button>
+                        </div>
+
+                        <div class="paleta-panel visible" id="pal0">
+                            <p class="paleta-desc">Los colores <strong>complementarios</strong> están en lados opuestos del círculo cromático. Generan un contraste fuerte y visual que llama la atención. Funcionan muy bien para que el título destaque sobre el fondo.</p>
+                            <div class="paleta-grid">
+                                <div class="paleta-color"><div class="color-muestra" style="background:#1B2A4A"></div><div class="color-nombre">Azul noche</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#E8A830"></div><div class="color-nombre">Ámbar cálido</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#0F1C30"></div><div class="color-nombre">Fondo oscuro</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#F5E8C8"></div><div class="color-nombre">Crema título</div></div>
+                            </div>
+                            <div class="paleta-ejemplo">
+                                <div class="paleta-ejemplo-portada" style="background:#1B2A4A">
+                                    <div class="pe-genero" style="color:#E8A830">Fantasía épica</div>
+                                    <div class="pe-titulo" style="color:#F5E8C8">El último reino de las estrellas</div>
+                                    <div class="pe-autor" style="color:#E8A830">por Elena García</div>
+                                </div>
+                            </div>
+                            <div class="teoria-box">
+                                <div class="teoria-titulo">Por qué funciona</div>
+                                <p class="teoria-texto">El azul profundo y el ámbar se oponen en el círculo cromático. Esa tensión visual hace que el ojo no pueda ignorarlo. El título en crema sobre azul oscuro tiene una legibilidad altísima.</p>
+                            </div>
+                        </div>
+
+                        <div class="paleta-panel" id="pal1">
+                            <p class="paleta-desc">Los colores <strong>análogos</strong> son los que están juntos en el círculo cromático. Crean una sensación de armonía, calidez y coherencia visual. Ideales para portadas que quieren transmitir calma, romanticismo o naturaleza.</p>
+                            <div class="paleta-grid">
+                                <div class="paleta-color"><div class="color-muestra" style="background:#8B4513"></div><div class="color-nombre">Caoba</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#C8854A"></div><div class="color-nombre">Ámbar</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#E8C87A"></div><div class="color-nombre">Dorado</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#F5ECD0"></div><div class="color-nombre">Pergamino</div></div>
+                            </div>
+                            <div class="paleta-ejemplo">
+                                <div class="paleta-ejemplo-portada" style="background:linear-gradient(135deg,#8B4513,#C8854A)">
+                                    <div class="pe-genero" style="color:#E8C87A">Romance histórico</div>
+                                    <div class="pe-titulo" style="color:#F5ECD0">La herencia del viento</div>
+                                    <div class="pe-autor" style="color:#E8C87A">por Elena García</div>
+                                </div>
+                            </div>
+                            <div class="teoria-box">
+                                <div class="teoria-titulo">Por qué funciona</div>
+                                <p class="teoria-texto">Los tonos análogos no pelean entre sí. El ojo los percibe como una unidad. Esta paleta cálida transmite historia, romanticismo y elegancia sin esfuerzo.</p>
+                            </div>
+                        </div>
+
+                        <div class="paleta-panel" id="pal2">
+                            <p class="paleta-desc">Los colores <strong>triádicos</strong> forman un triángulo en el círculo cromático. Son tres colores equidistantes que juntos crean una sensación de energía, diversidad y dinamismo. Muy usados en portadas de aventura o ciencia ficción.</p>
+                            <div class="paleta-grid">
+                                <div class="paleta-color"><div class="color-muestra" style="background:#2D1B69"></div><div class="color-nombre">Violeta</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#1A6935"></div><div class="color-nombre">Verde bosque</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#8B2500"></div><div class="color-nombre">Rojo oscuro</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#F0E8FF"></div><div class="color-nombre">Lavanda claro</div></div>
+                            </div>
+                            <div class="paleta-ejemplo">
+                                <div class="paleta-ejemplo-portada" style="background:#2D1B69">
+                                    <div class="pe-genero" style="color:#6DCC8A">Aventura · Magia</div>
+                                    <div class="pe-titulo" style="color:#F0E8FF">Los tres portales</div>
+                                    <div class="pe-autor" style="color:#F0A090">por Elena García</div>
+                                </div>
+                            </div>
+                            <div class="teoria-box">
+                                <div class="teoria-titulo">Por qué funciona</div>
+                                <p class="teoria-texto">Tres colores muy distintos que sin embargo se equilibran. El violeta como base crea profundidad, y los acentos en verde y rojo le dan vida y movimiento a la portada.</p>
+                            </div>
+                        </div>
+
+                        <div class="paleta-panel" id="pal3">
+                            <p class="paleta-desc">Una paleta <strong>monocromática</strong> usa un único color en diferentes saturaciones y luminosidades. El resultado es elegante, sofisticado y muy limpio. Muy usado en ensayo, poesía y ficción literaria.</p>
+                            <div class="paleta-grid">
+                                <div class="paleta-color"><div class="color-muestra" style="background:#0A0A12"></div><div class="color-nombre">Negro azulado</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#1C1C3A"></div><div class="color-nombre">Azul noche</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#4A4A7A"></div><div class="color-nombre">Índigo medio</div></div>
+                                <div class="paleta-color"><div class="color-muestra" style="background:#E8E8F8"></div><div class="color-nombre">Blanco azulado</div></div>
+                            </div>
+                            <div class="paleta-ejemplo">
+                                <div class="paleta-ejemplo-portada" style="background:#0A0A12">
+                                    <div class="pe-genero" style="color:#4A4A7A">Poesía</div>
+                                    <div class="pe-titulo" style="color:#E8E8F8">Todo lo que no dije</div>
+                                    <div class="pe-autor" style="color:#9090C0">por Elena García</div>
+                                </div>
+                            </div>
+                            <div class="teoria-box">
+                                <div class="teoria-titulo">Por qué funciona</div>
+                                <p class="teoria-texto">Sin ruido de color, el ojo va directo al texto. La sensación es de minimalismo y profundidad. Ideal cuando el título es poderoso por sí solo y no necesita competencia visual.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 02 DERECHOS -->
+                <div class="der-parte" id="dp1">
+                    <div class="der-num">02</div>
+                    <div class="der-titulo">Página de derechos</div>
+                    <span class="der-badge b-rec">Recomendada</span>
+                    <p class="der-desc">La página de derechos es la que protege legalmente tu obra. Aunque nadie la lea de principio a fin, su ausencia puede ser un problema si alguien usa tu trabajo sin permiso. Va en el reverso de la portada interior y contiene toda la información legal y técnica del libro.</p>
+                    <div class="tips-label">Qué incluir</div>
+                    <ul class="der-tips">
+                        <li>El símbolo © seguido de tu nombre y el año de publicación</li>
+                        <li>Una frase que reserve todos tus derechos de reproducción</li>
+                        <li>El ISBN si vas a publicar de forma oficial o distribuir en librerías</li>
+                        <li>Los créditos del diseñador de portada, ilustrador o editor si los hay</li>
+                        <li>El país de publicación y la edición (primera, segunda…)</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">Ejemplo real</div>
+                        <p>© 2026 Elena García. Todos los derechos reservados. Queda prohibida la reproducción total o parcial de esta obra por cualquier medio sin el permiso escrito de la autora. Primera edición, junio de 2026.</p>
+                    </div>
+                    <div class="der-ej" style="margin-top:10px">
+                        <div class="der-ej-label">¿Necesito ISBN?</div>
+                        <p>Solo es obligatorio si vas a vender el libro en librerías o distribuirlo en plataformas como Amazon. Para un proyecto personal, un blog o una edición limitada para amigos, no lo necesitas.</p>
+                    </div>
+                </div>
+
+                <!-- 03 DEDICATORIA -->
+                <div class="der-parte" id="dp2">
+                    <div class="der-num">03</div>
+                    <div class="der-titulo">Dedicatoria</div>
+                    <span class="der-badge b-opc">Opcional</span>
+                    <p class="der-desc">La dedicatoria es uno de los momentos más personales de un libro. Es el espacio donde le dices al mundo, de forma breve y sin explicaciones, a quién escribiste esto. No necesita contexto, no necesita justificación. Va sola en su propia página, centrada, en pocas líneas. La gente la lee siempre, aunque sea lo único que lea antes de empezar.</p>
+                    <div class="tips-label">Cómo escribirla bien</div>
+                    <ul class="der-tips">
+                        <li>Una o dos líneas como máximo — la brevedad le da fuerza</li>
+                        <li>No expliques quién es la persona ni por qué la dedicas a ella</li>
+                        <li>Puede ser directa, poética, irónica o misteriosa</li>
+                        <li>No lleva firma — tu nombre ya está en la portada</li>
+                        <li>No la confundas con los agradecimientos, que son mucho más largos</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">Ejemplos</div>
+                        <p>Para mi madre, que me enseñó que las historias curan.<br><br>A todos los que alguna vez se sintieron demasiado raros para este mundo.<br><br>Para ti, que sabes perfectamente por qué.</p>
+                    </div>
+                </div>
+
+                <!-- 04 EPÍGRAFE -->
+                <div class="der-parte" id="dp3">
+                    <div class="der-num">04</div>
+                    <div class="der-titulo">Epígrafe</div>
+                    <span class="der-badge b-opc">Opcional</span>
+                    <p class="der-desc">El epígrafe es una cita que el autor coloca al inicio del libro, antes de que empiece la historia. Puede ser de otro escritor, una canción, un poema, un proverbio o incluso una frase inventada. Su función no es decorativa: es preparar al lector emocionalmente. Una buena cita abre una puerta antes de que empiece el relato.</p>
+                    <div class="tips-label">Cómo elegirlo</div>
+                    <ul class="der-tips">
+                        <li>Que resuene con el tema o la emoción central del libro</li>
+                        <li>Que sugiera sin revelar — el misterio lo hace más poderoso</li>
+                        <li>Siempre con la fuente: nombre del autor y título de la obra</li>
+                        <li>No tiene que ser famosa, tiene que ser la adecuada</li>
+                        <li>Algunos autores ponen uno por capítulo además del general</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">Ejemplo</div>
+                        <p>"No estamos aquí para hacer lo que ya se ha hecho." — Robert Henri, The Art Spirit<br><br>"Todo lo que puedas imaginar es real." — Pablo Picasso</p>
+                    </div>
+                </div>
+
+                <!-- 05 PRÓLOGO -->
+                <div class="der-parte" id="dp4">
+                    <div class="der-num">05</div>
+                    <div class="der-titulo">Prólogo</div>
+                    <span class="der-badge b-opc">Opcional</span>
+                    <p class="der-desc">El prólogo lo escribe siempre otra persona, no el autor. Es alguien externo — un crítico, un escritor reconocido, un experto en el tema — que presenta el libro y le da credibilidad desde fuera. No lo confundas con la introducción, que sí la escribe el autor. El prólogo es un aval externo, una recomendación con firma.</p>
+                    <div class="tips-label">Cuándo tiene sentido incluirlo</div>
+                    <ul class="der-tips">
+                        <li>Cuando tienes a alguien con nombre en el sector dispuesto a firmarlo</li>
+                        <li>En libros de no ficción, ensayo o divulgación</li>
+                        <li>En memorias o autobiografías cuando hay un editor o periodista que lo contextualiza</li>
+                        <li>En reediciones de libros clásicos, escrito por un experto actual</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">Importante</div>
+                        <p>Si no tienes a nadie con peso suficiente para firmarlo, es mejor no incluirlo. Un prólogo de alguien desconocido no añade valor y puede dar la impresión de que estás rellenando páginas. En novelas de ficción es prácticamente inexistente.</p>
+                    </div>
+                </div>
+
+                <!-- 06 INTRODUCCIÓN -->
+                <div class="der-parte" id="dp5">
+                    <div class="der-num">06</div>
+                    <div class="der-titulo">Introducción</div>
+                    <span class="der-badge b-seg">Según el género</span>
+                    <p class="der-desc">A diferencia del prólogo, la introducción sí la escribe el propio autor. Es el espacio donde explicas qué es el libro, por qué lo escribiste, a quién va dirigido y cómo está organizado. Es más común en libros de no ficción, ensayo, manuales y libros de autoayuda. En ficción no suele usarse porque interrumpe la inmersión en la historia.</p>
+                    <div class="tips-label">Qué incluir</div>
+                    <ul class="der-tips">
+                        <li>El tema central y tu enfoque particular sobre él</li>
+                        <li>Por qué decidiste escribir esto y qué te motivó</li>
+                        <li>A quién le puede ser útil o interesante</li>
+                        <li>Cómo está organizado el libro para que el lector sepa dónde ir</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">Consejo para ficción</div>
+                        <p>Si al escribir tu novela sientes que necesitas una introducción para explicar algo antes de que empiece la historia, eso es una señal de que el primer capítulo tiene un problema. La solución no es añadir una introducción, sino reescribir ese arranque hasta que se sostenga solo.</p>
+                    </div>
+                </div>
+
+                <!-- 07 CAPÍTULOS -->
+                <div class="der-parte" id="dp6">
+                    <div class="der-num">07</div>
+                    <div class="der-titulo">Capítulos</div>
+                    <span class="der-badge b-oblig">Obligatorios</span>
+                    <p class="der-desc">Los capítulos son el corazón del libro. Todo lo demás — la portada, la dedicatoria, el prólogo — existe para llegar aquí. Cada capítulo es una unidad narrativa con su propio ritmo, su propia tensión y su propia razón de existir. Un capítulo que no avanza la trama, no revela algo del personaje y no cambia el estado emocional del lector, probablemente sobra.</p>
+                    <div class="tips-label">Cómo estructurar cada capítulo</div>
+                    <ul class="der-tips">
+                        <li>Empieza con algo que enganche: una acción, una pregunta, una imagen que no se pueda ignorar</li>
+                        <li>Cada capítulo tiene su propio arco pequeño: situación inicial, tensión, cambio o revelación</li>
+                        <li>Termina siempre con algo que invite a seguir — una pregunta abierta, una sorpresa, un corte en el momento justo</li>
+                        <li>La longitud más habitual en ficción es entre 1.500 y 5.000 palabras, pero no hay regla fija</li>
+                        <li>Puedes usar títulos o números — ambas opciones son válidas y dicen cosas distintas sobre el tono del libro</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">La pregunta que tienes que hacerte</div>
+                        <p>Antes de dar un capítulo por terminado, pregúntate: ¿qué sabe el lector al final que no sabía al principio? No solo en términos de trama, sino de personaje, de mundo, de emoción. Si la respuesta es "nada", el capítulo necesita una vuelta más.</p>
+                    </div>
+                </div>
+
+                <!-- 08 EPÍLOGO -->
+                <div class="der-parte" id="dp7">
+                    <div class="der-num">08</div>
+                    <div class="der-titulo">Epílogo</div>
+                    <span class="der-badge b-opc">Opcional</span>
+                    <p class="der-desc">El epílogo ocurre después del final de la historia principal. No es el desenlace: el desenlace cierra los conflictos, el epílogo muestra lo que quedó después de que todo acabó. Puede ser una escena meses o años más tarde, una última reflexión del narrador, o una imagen que resuene con el inicio del libro. Cuando está bien hecho, es lo que el lector recuerda para siempre.</p>
+                    <div class="tips-label">Cuándo tiene sentido usarlo</div>
+                    <ul class="der-tips">
+                        <li>Para mostrar las consecuencias a largo plazo de lo que ocurrió</li>
+                        <li>Para cerrar un hilo secundario que no cupó bien en el desenlace</li>
+                        <li>Para dar al lector una última bocanada emocional diferente al tono del clímax</li>
+                        <li>En sagas, para plantar la semilla del siguiente libro sin que parezca un anuncio</li>
+                        <li>Para crear un eco con la primera página o el primer capítulo</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">Lo que no debe ser</div>
+                        <p>El epílogo no es un parche para resolver lo que el desenlace dejó sin cerrar por falta de planificación. Si algo importante quedó en el aire, la solución es reescribir el final, no añadir un epílogo que lo tape. El lector lo nota siempre.</p>
+                    </div>
+                </div>
+
+                <!-- 09 AGRADECIMIENTOS -->
+                <div class="der-parte" id="dp8">
+                    <div class="der-num">09</div>
+                    <div class="der-titulo">Agradecimientos</div>
+                    <span class="der-badge b-opc">Opcional</span>
+                    <p class="der-desc">Los agradecimientos son el espacio más humano de todo el libro. Es donde el autor reconoce que escribir no es un acto solitario, aunque a veces lo parezca. Hay quien los lee antes de empezar el libro, hay quien va directo a ellos al terminar la última página. Son una de las partes más leídas en proporción a su extensión.</p>
+                    <div class="tips-label">Cómo escribirlos para que no suenen a lista</div>
+                    <ul class="der-tips">
+                        <li>Sé específico: en lugar de "gracias a mi familia", di por qué les das las gracias</li>
+                        <li>No intentes mencionar a todo el mundo — prioriza a quienes de verdad influyeron en el libro</li>
+                        <li>El tono puede ser tan personal como quieras — no tienen que ser formales</li>
+                        <li>Pueden ir al principio (después de la dedicatoria) o al final del libro</li>
+                        <li>Incluir a los lectores beta, si los tuviste, es un gesto muy valorado</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">Ejemplo con personalidad</div>
+                        <p>A Marta, que leyó el primer borrador sin quejarse y me dijo la verdad en vez de lo que quería escuchar. A mi madre, por no preguntar cuándo iba a "tener un trabajo de verdad". Y a todas las personas que en algún momento me dijeron que no iba a acabar este libro: aquí está.</p>
+                    </div>
+                </div>
+
+                <!-- 10 ANEXOS -->
+                <div class="der-parte" id="dp9">
+                    <div class="der-num">10</div>
+                    <div class="der-titulo">Anexos y glosario</div>
+                    <span class="der-badge b-seg">Según el género</span>
+                    <p class="der-desc">Los anexos son material complementario que enriquece la experiencia de lectura sin interrumpirla. Van siempre al final del libro, después de la historia, para que el lector los consulte cuando quiera sin que interfieran en el ritmo narrativo. En algunos géneros son casi imprescindibles; en otros no tienen sentido.</p>
+                    <div class="tips-label">Qué tipo de material extra puedes incluir</div>
+                    <ul class="der-tips">
+                        <li>Glosario de términos técnicos, palabras inventadas o vocabulario de un idioma ficticio</li>
+                        <li>Mapas del mundo o de los lugares principales de la historia</li>
+                        <li>Árboles genealógicos en sagas con muchos personajes o familias</li>
+                        <li>Bibliografía y fuentes si el libro está documentado</li>
+                        <li>Nota del autor sobre qué partes son reales y qué partes son inventadas</li>
+                        <li>Líneas temporales si la historia abarca muchos años o saltos en el tiempo</li>
+                    </ul>
+                    <div class="der-ej">
+                        <div class="der-ej-label">La nota del autor</div>
+                        <p>En novela histórica o basada en hechos reales, la nota del autor al final es casi obligatoria. Los lectores quieren saber qué ocurrió de verdad y qué fue inventado. Es también un gesto de respeto hacia las personas reales que aparecen en la historia.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('userDropdown').classList.toggle('abierto');
+    }
+    document.addEventListener('click', function(e) {
+        var w = document.querySelector('.user-menu-wrapper');
+        if (w && !w.contains(e.target)) {
+            var d = document.getElementById('userDropdown');
+            if (d) d.classList.remove('abierto');
+        }
+    });
+
+    function abrirLibro() {
+        document.getElementById('libroCerrado').style.display = 'none';
+        document.getElementById('libroAbierto').classList.add('visible');
+    }
+
+    function cerrarLibro() {
+        document.getElementById('libroAbierto').classList.remove('visible');
+        document.getElementById('libroCerrado').style.display = 'flex';
+        for (var j = 0; j < 10; j++) {
+            document.getElementById('ii' + j).classList.remove('activo');
+            document.getElementById('dp' + j).classList.remove('visible');
+        }
+        document.getElementById('derPlaceholder').style.display = 'flex';
+    }
+
+    function mostrar(i) {
+        for (var j = 0; j < 10; j++) {
+            document.getElementById('ii' + j).classList.remove('activo');
+            document.getElementById('dp' + j).classList.remove('visible');
+        }
+        document.getElementById('derPlaceholder').style.display = 'none';
+        document.getElementById('ii' + i).classList.add('activo');
+        document.getElementById('dp' + i).classList.add('visible');
+    }
+
+    function verPaleta(i, btn) {
+        document.querySelectorAll('.paleta-tab').forEach(function(t) { t.classList.remove('activo'); });
+        document.querySelectorAll('.paleta-panel').forEach(function(p) { p.classList.remove('visible'); });
+        btn.classList.add('activo');
+        document.getElementById('pal' + i).classList.add('visible');
+    }
+</script>
+
+</body>
+</html>

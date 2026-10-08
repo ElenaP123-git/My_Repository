@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dayneira - Escribir</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Baloo+2:wght@400;600;700;800&family=Caveat:wght@400;600;700&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Special+Elite&family=Permanent+Marker&family=Lobster&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;700&family=Satisfy&display=swap" rel="stylesheet">
+    <style>
+        :root {--marron:#2C1A0E;--ambar:#C8854A;--ambar2:#E8A96A;--pergamino:#E8D5B7;--caoba:#6B4226;--muted:#8B6E52;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Baloo 2',sans-serif;background:#0e0702;color:var(--marron);min-height:100vh;overflow-x:hidden;}
+        .navbar{display:flex;justify-content:space-between;align-items:center;padding:0 20px;background:var(--marron);position:fixed;top:0;left:0;right:0;z-index:600;height:50px;gap:12px;}
+        .nav-logo{font-family:'Playfair Display',serif;color:var(--pergamino);font-size:19px;font-weight:700;text-decoration:none;flex-shrink:0;}
+        .nav-titulo{font-size:13px;color:var(--ambar2);font-weight:700;flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .nav-acciones{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+        .nav-btn{background:rgba(232,213,183,0.1);border:1px solid rgba(232,213,183,0.2);color:var(--pergamino);padding:5px 14px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:background .2s;white-space:nowrap;}
+        .nav-btn:hover{background:rgba(232,213,183,0.22);}
+        .nav-btn.verde{background:#1a3d1a;border-color:#2a5a2a;color:#90d090;}
+        .nav-btn.verde:hover{background:#245a24;}
+        .nav-guardado{font-size:11px;color:rgba(232,213,183,0.35);white-space:nowrap;}
+        .nav-con-tip{position:relative;}
+        .nav-con-tip .ntip{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1a0f06;color:var(--ambar2);font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid #3a1a06;white-space:nowrap;pointer-events:none;z-index:999;}
+        .nav-con-tip:hover .ntip{display:block;}
+        .app-layout{display:none;padding-top:90px;min-height:100vh;}
+        .app-layout.visible{display:block;}
+        .escritura-zona{display:flex;flex-direction:column;align-items:center;padding:30px 24px 100px;min-height:calc(100vh - 90px);background:#0e0702;}
+        .hojas-cont{display:flex;flex-direction:column;align-items:center;gap:48px;width:100%;}
+        .hoja{width:min(660px,calc(100vw - 60px));aspect-ratio:210/297;border-radius:1px;overflow:hidden;position:relative;flex-shrink:0;box-shadow:0 20px 70px rgba(0,0,0,0.8),0 4px 20px rgba(0,0,0,0.5),6px 6px 0 rgba(0,0,0,0.25);}
+        .hoja::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 15% 8%,rgba(160,110,40,.14) 0%,transparent 45%),radial-gradient(ellipse at 85% 92%,rgba(130,80,20,.11) 0%,transparent 42%),radial-gradient(ellipse at 70% 35%,rgba(180,140,60,.06) 0%,transparent 35%);}
+        .hoja::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;box-shadow:inset 0 0 60px rgba(50,20,5,.06),inset 3px 0 10px rgba(50,20,5,.05),inset -3px 0 10px rgba(50,20,5,.04);}
+        .hoja-num{position:absolute;bottom:1.8%;width:100%;text-align:center;font-family:'Playfair Display',serif;font-size:clamp(10px,1.4vw,14px);z-index:3;pointer-events:none;letter-spacing:2px;}
+        .hoja-editor{position:absolute;z-index:2;top:5%;left:8%;right:8%;bottom:8%;overflow:hidden;outline:none;word-break:break-word;caret-color:#3a1a06;font-size:clamp(13px,1.6vw,17px);line-height:1.4;}
+        .hoja-editor:empty::before{content:attr(data-ph);pointer-events:none;font-style:italic;opacity:.28;}
+        .hoja-editor:focus{outline:none;}
+        .hoja-editor div,.hoja-editor p{margin:0;padding:0;min-height:1em;}
+        .hoja-editor br{line-height:inherit;}
+        .portada-inner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10%;gap:14px;}
+        .portada-deco{width:80px;height:0;border-top:1px solid currentColor;margin:4px auto;opacity:0.3;}
+        .portada-label{font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,34px);font-weight:700;letter-spacing:2px;}
+        .portada-sub{font-size:clamp(12px,1.5vw,15px);font-style:italic;max-width:300px;line-height:1.6;opacity:0.7;}
+        .portada-btn{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:var(--ambar);color:white;text-decoration:none;padding:10px 22px;border-radius:20px;font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;transition:background .2s;}
+        .portada-btn:hover{background:var(--caoba);}
+        .hoja-cap-inner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10%;}
+        .cap-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:3px;opacity:.38;margin-bottom:12px;}
+        .cap-deco{width:50px;height:1px;opacity:.18;margin:10px auto;}
+        .cap-nombre{font-family:'Playfair Display',serif;font-size:30px;line-height:1.3;}
+        .panel-lateral{position:fixed;right:-340px;top:50px;bottom:0;width:320px;background:#100602;border-left:1px solid #2a1208;z-index:550;transition:right .3s;overflow-y:auto;}
+        .panel-lateral.visible{right:0;}
+        .panel-flecha{position:fixed;right:320px;top:50%;transform:translateY(-50%);width:24px;height:64px;background:#2a1208;border-radius:8px 0 0 8px;border:1px solid #3a1a06;border-right:none;display:none;align-items:center;justify-content:center;cursor:pointer;color:var(--ambar2);font-size:18px;font-weight:700;transition:background .2s;user-select:none;z-index:600;}
+        .panel-flecha:hover{background:#3a1a06;}
+        .panel-lateral.visible .panel-flecha{display:flex;}
+        .panel-inner{padding:20px 16px;}
+        .panel-titulo{font-family:'Playfair Display',serif;font-size:17px;color:var(--pergamino);margin-bottom:4px;}
+        .panel-sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+        .p-sep{height:1px;background:#2a1208;margin:14px 0;}
+        .p-label{font-size:10px;font-weight:700;color:var(--ambar);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:block;}
+        .panel-vacio{font-size:12px;color:#4a2010;text-align:center;padding:18px 0;font-style:italic;line-height:1.4;}
+        .panel-btn{background:none;border:1px dashed #3a1a06;border-radius:8px;padding:9px;width:100%;color:#6a4020;font-size:12px;text-align:center;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .2s;margin-top:6px;display:block;}
+        .panel-btn:hover{border-color:var(--ambar);color:var(--ambar2);}
+        .img-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px;}
+        .img-thumb{aspect-ratio:1;background:#1e0f05;border:1px solid #3a1a06;border-radius:7px;background-size:cover;background-position:center;cursor:pointer;transition:border-color .2s;}
+        .img-thumb:hover{border-color:var(--ambar);}
+        .fuente-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px;}
+        .fuente-op{background:#1e0f05;border:2px solid #2a1208;border-radius:8px;padding:9px 7px;cursor:pointer;text-align:center;transition:all .2s;}
+        .fuente-op:hover{border-color:var(--ambar);}
+        .fuente-op.activo{border-color:var(--ambar);background:#2a1208;}
+        .fuente-pre{font-size:19px;color:var(--pergamino);margin-bottom:2px;}
+        .fuente-nom{font-size:10px;color:var(--muted);}
+        .colores-grid{display:flex;gap:5px;flex-wrap:wrap;}
+        .color-op{width:26px;height:26px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+        .color-op:hover{transform:scale(1.12);}
+        .color-op.activo{border-color:var(--ambar);box-shadow:0 0 0 2px rgba(200,133,74,.4);}
+        .lineas-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+        .lineas-op{background:#1e0f05;border:2px solid #2a1208;border-radius:6px;padding:5px;cursor:pointer;text-align:center;transition:all .2s;}
+        .lineas-op:hover{border-color:var(--ambar);}
+        .lineas-op.activo{border-color:var(--ambar);background:#2a1208;}
+        .lineas-pre{height:20px;border-radius:2px;margin-bottom:3px;overflow:hidden;}
+        .lineas-nom{font-size:9px;color:var(--muted);}
+        .barra-fmt{position:fixed;top:50px;left:0;right:0;z-index:490;background:#1a0a02;border-bottom:1px solid #2a1208;display:flex;align-items:center;gap:4px;padding:5px 20px;height:40px;}
+        .bfmt-btn{background:none;border:1px solid transparent;color:var(--ambar2);padding:3px 10px;border-radius:5px;font-size:13px;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:all .15s;min-width:30px;text-align:center;line-height:1;}
+        .bfmt-btn:hover{background:#2a1208;border-color:#3a1a06;}
+        .bfmt-btn.activo{background:#3a1a06;border-color:var(--ambar);}
+        .bfmt-sep{width:1px;height:20px;background:#2a1208;margin:0 3px;flex-shrink:0;}
+        .bfmt-select{background:#1a0a02;border:1px solid #2a1208;color:var(--ambar2);padding:3px 7px;border-radius:5px;font-size:12px;cursor:pointer;font-family:'Baloo 2',sans-serif;outline:none;transition:border-color .2s;height:26px;}
+        .bfmt-select:focus{border-color:var(--ambar);}
+        .bfmt-tam{width:52px;}
+        .modal-ov{position:fixed;inset:0;background:rgba(3,1,0,.93);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
+        .modal-ov.oculto{display:none;}
+        .mbox{background:#f5ede0;border-radius:18px;padding:40px 44px;max-width:490px;width:92%;box-shadow:0 30px 80px rgba(0,0,0,.6);}
+        .memoji{font-size:42px;display:block;text-align:center;margin-bottom:12px;}
+        .mtitulo{font-family:'Playfair Display',serif;font-size:23px;color:var(--marron);margin-bottom:7px;text-align:center;}
+        .msub{font-size:13px;color:var(--muted);line-height:1.4;margin-bottom:24px;text-align:center;}
+        .mopciones{display:flex;flex-direction:column;gap:9px;}
+        .mopcion{background:white;border:2px solid var(--pergamino);border-radius:13px;padding:15px 19px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:13px;}
+        .mopcion:hover{border-color:var(--ambar);transform:translateY(-2px);box-shadow:0 4px 14px rgba(200,133,74,.15);}
+        .mopcion-emoji{font-size:24px;flex-shrink:0;}
+        .mopcion-texto strong{display:block;font-size:14px;color:var(--marron);margin-bottom:2px;}
+        .mopcion-texto span{font-size:12px;color:var(--muted);}
+        .mlabel{display:block;font-size:12px;font-weight:700;color:var(--caoba);margin-bottom:7px;}
+        .minput{width:100%;padding:11px 15px;border:2px solid var(--pergamino);border-radius:9px;font-size:15px;font-family:'Playfair Display',serif;background:white;color:var(--marron);outline:none;transition:border-color .2s;margin-bottom:14px;}
+        .minput:focus{border-color:var(--ambar);}
+        .mbtn{width:100%;background:var(--caoba);color:white;border:none;padding:13px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;transition:background .2s;}
+        .mbtn:hover{background:var(--marron);}
+        .mvolver{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;display:block;margin:10px auto 0;font-family:'Baloo 2',sans-serif;}
+        .mvolver:hover{color:var(--ambar);}
+        .libros-lista{display:flex;flex-direction:column;gap:7px;max-height:270px;overflow-y:auto;}
+        .libro-item{background:white;border:2px solid var(--pergamino);border-radius:11px;padding:12px 15px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:11px;}
+        .libro-item:hover{border-color:var(--ambar);transform:translateY(-1px);}
+        .libro-item strong{display:block;font-size:13px;color:var(--marron);}
+        .libro-item span{font-size:11px;color:var(--muted);}
+        .modal-cap{position:fixed;inset:0;background:rgba(3,1,0,.88);z-index:800;display:none;align-items:center;justify-content:center;}
+        .modal-cap.visible{display:flex;}
+        .mcap-box{background:#f5ede0;border-radius:15px;padding:32px 36px;max-width:390px;width:90%;text-align:center;}
+        .mcap-titulo{font-family:'Playfair Display',serif;font-size:20px;color:var(--marron);margin-bottom:7px;}
+        .mcap-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+        .mcap-input{width:100%;padding:10px 14px;border:2px solid var(--pergamino);border-radius:9px;font-size:15px;font-family:'Playfair Display',serif;background:white;color:var(--marron);outline:none;margin-bottom:13px;text-align:center;transition:border-color .2s;}
+        .mcap-input:focus{border-color:var(--ambar);}
+        .mcap-btns{display:flex;gap:8px;}
+        .btn-c1{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;border:none;background:var(--pergamino);color:var(--caoba);}
+        .btn-c2{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Baloo 2',sans-serif;border:none;background:var(--caoba);color:white;transition:background .2s;}
+        .btn-c2:hover{background:var(--marron);}
+        ::-webkit-scrollbar{width:4px;}
+        ::-webkit-scrollbar-track{background:#0e0702;}
+        ::-webkit-scrollbar-thumb{background:#3a1a06;border-radius:2px;}
+    </style>
+</head>
+<body>
+
+<div class="modal-ov" id="modalInicio">
+    <div class="mbox">
+        <div id="paso1">
+            <span class="memoji">✍️</span>
+            <h2 class="mtitulo">¿Qué quieres hacer hoy?</h2>
+            <p class="msub">Empieza algo nuevo o sigue donde lo dejaste.</p>
+            <div class="mopciones">
+                <div class="mopcion" onclick="irPaso('nuevo')">
+                    <span class="mopcion-emoji">📖</span>
+                    <div class="mopcion-texto"><strong>Empezar un libro nuevo</strong><span>Primera página en blanco</span></div>
+                </div>
+                <div class="mopcion" onclick="irPaso('continuar')">
+                    <span class="mopcion-emoji">🔖</span>
+                    <div class="mopcion-texto"><strong>Continuar un libro existente</strong><span>Seguir escribiendo donde lo dejé</span></div>
+                </div>
+            </div>
+        </div>
+        <div id="pasoNuevo" style="display:none">
+            <span class="memoji">📖</span>
+            <h2 class="mtitulo">¿Cómo se llama tu libro?</h2>
+            <p class="msub">Puedes cambiarlo después.</p>
+            <label class="mlabel">Título</label>
+            <input type="text" class="minput" id="inputTitulo" placeholder="El título de tu historia..." maxlength="120">
+            <span id="errorTitulo" style="display:none;color:#c0392b;font-size:12px;margin-bottom:8px;font-family:'Baloo 2',sans-serif"></span>
+            <button class="mbtn" onclick="crearLibro()">Empezar a escribir →</button>
+            <button class="mvolver" onclick="irPaso('inicio')">← Volver</button>
+        </div>
+        <div id="pasoContinuar" style="display:none">
+            <span class="memoji">🔖</span>
+            <h2 class="mtitulo">¿Qué libro continuar?</h2>
+            <p class="msub">Tus libros en progreso.</p>
+            <div class="libros-lista" id="listaLibros"></div>
+            <button class="mvolver" onclick="irPaso('inicio')">← Volver</button>
+        </div>
+    </div>
+</div>
+
+<nav class="navbar">
+    <a href="/DayneiraApp/inicio/" class="nav-logo">✦ Dayneira</a>
+    <span class="nav-titulo" id="navTitulo"></span>
+    <div class="nav-acciones">
+        <span class="nav-guardado" id="estadoGuardado">● Guardado</span>
+        <div class="nav-con-tip" style="position:relative">
+            <button class="nav-btn" onclick="togglePanel('personajes')">👤</button>
+            <span class="ntip" style="display:none">Recuerda a tus personajes</span>
+        </div>
+        <div class="nav-con-tip" style="position:relative">
+            <button class="nav-btn" onclick="togglePanel('imagenes')">🖼️</button>
+            <span class="ntip" style="display:none">Añade tus imágenes</span>
+        </div>
+        <button class="nav-btn" onclick="togglePanel('personalizar')">🎨 Personalizar</button>
+        <button class="nav-btn verde" onclick="abrirModalCap()">📑 Nuevo capítulo</button>
+    </div>
+</nav>
+
+<div class="barra-fmt" id="barraFmt" style="display:none">
+    <select class="bfmt-select" id="bSelFuente" onchange="aplicarFuente(this.value)" title="Tipo de letra" style="width:150px">
+        <option value="Caveat">✏️ Rotulador</option>
+        <option value="Dancing Script">💃 Caligrafía elegante</option>
+        <option value="Indie Flower">🌸 Letra manuscrita</option>
+        <option value="Permanent Marker">🖊️ Rotulador grueso</option>
+        <option value="Special Elite">🖨️ Máquina de escribir</option>
+        <option value="Courier Prime">📋 Courier clásica</option>
+        <option value="Playfair Display">📖 Novela clásica</option>
+        <option value="IM Fell English">📜 Antigua inglesa</option>
+        <option value="Cinzel">🏛️ Romana</option>
+        <option value="Lobster">🎪 Lobster</option>
+        <option value="Satisfy">✨ Satisfy</option>
+        <option value="Arial">🔤 Arial</option>
+    </select>
+    <select class="bfmt-select bfmt-tam" id="bSelTam" onchange="aplicarTamano(this.value)" title="Tamaño">
+        <option>10</option><option>12</option><option>14</option>
+        <option selected>16</option><option>18</option><option>20</option>
+        <option>24</option><option>28</option><option>32</option>
+        <option>36</option><option>48</option><option>64</option>
+    </select>
+    <div class="bfmt-sep"></div>
+    <button class="bfmt-btn" id="bB" onclick="fmt('bold')" title="Negrita"><b>N</b></button>
+    <button class="bfmt-btn" id="bI" onclick="fmt('italic')" title="Cursiva"><i>C</i></button>
+    <button class="bfmt-btn" id="bU" onclick="fmt('underline')" title="Subrayado"><u>S</u></button>
+    <div class="bfmt-sep"></div>
+    <button class="bfmt-btn" id="bAL" data-alin="left" onclick="fmtAlign('left')" title="Izquierda">&#9665;</button>
+    <button class="bfmt-btn" id="bAC" data-alin="center" onclick="fmtAlign('center')" title="Centrar">&#9632;</button>
+    <button class="bfmt-btn" id="bAR" data-alin="right" onclick="fmtAlign('right')" title="Derecha">&#9655;</button>
+    <div class="bfmt-sep"></div>
+    <button class="bfmt-btn activo" data-col="1" onclick="setColumnas(1)" title="1 columna">&#9645;</button>
+    <button class="bfmt-btn" data-col="2" onclick="setColumnas(2)" title="2 columnas">&#9645;&#9645;</button>
+</div>
+
+<div class="app-layout" id="appLayout">
+    <div class="escritura-zona">
+        <div class="hojas-cont" id="hojasCont"></div>
+    </div>
+</div>
+
+<div class="panel-lateral" id="panelPersonajes">
+    <div class="panel-flecha" onclick="cerrarPanel('personajes')">›</div>
+    <div class="panel-inner">
+        <div class="panel-titulo">👤 Mis personajes</div>
+        <div class="panel-sub">Los personajes que has creado en tu historia.</div>
+        <div id="listaPersonajes"><p class="panel-vacio">Todavía no has creado personajes.<br><br>Ve a <strong>Crea tus personajes</strong> para añadirlos aquí.</p></div>
+        <button class="panel-btn" onclick="location.href='/DayneiraApp/personaje/'">+ Crear personaje</button>
+    </div>
+</div>
+
+<div class="panel-lateral" id="panelImagenes">
+    <div class="panel-flecha" onclick="cerrarPanel('imagenes')">›</div>
+    <div class="panel-inner">
+        <div class="panel-titulo">🖼️ Mis imágenes</div>
+        <div class="panel-sub">Sube imágenes y añádelas a la página.</div>
+        <div class="img-grid" id="gridImg"></div>
+        <label class="panel-btn" style="cursor:pointer">+ Añadir imagen<input type="file" accept="image/*" style="display:none" onchange="subirImg(this)"></label>
+        <button class="panel-btn" onclick="location.href='/DayneiraApp/dibujo/'">🎨 Creación de portadas</button>
+    </div>
+</div>
+
+<div class="panel-lateral" id="panelPersonalizar">
+    <div class="panel-flecha" onclick="cerrarPanel('personalizar')">›</div>
+    <div class="panel-inner">
+        <div class="panel-titulo">🎨 Personalizar diario</div>
+        <div class="panel-sub">Cambia el aspecto y el formato de tus páginas.</div>
+        <span class="p-label">Color del folio</span>
+        <div class="colores-grid">
+            <div class="color-op activo" style="background:#f4e4c1" onclick="setColorHoja('#f4e4c1',this)" title="Pergamino"></div>
+            <div class="color-op" style="background:#fdf9f0" onclick="setColorHoja('#fdf9f0',this)" title="Marfil"></div>
+            <div class="color-op" style="background:#ffffff" onclick="setColorHoja('#ffffff',this)" title="Blanco"></div>
+            <div class="color-op" style="background:#f8f0e0" onclick="setColorHoja('#f8f0e0',this)" title="Arena"></div>
+            <div class="color-op" style="background:#e8e0d0" onclick="setColorHoja('#e8e0d0',this)" title="Lino"></div>
+            <div class="color-op" style="background:#e4f0e4" onclick="setColorHoja('#e4f0e4',this)" title="Verde menta"></div>
+            <div class="color-op" style="background:#d4ead4" onclick="setColorHoja('#d4ead4',this)" title="Verde salvia"></div>
+            <div class="color-op" style="background:#e4eef4" onclick="setColorHoja('#e4eef4',this)" title="Azul cielo"></div>
+            <div class="color-op" style="background:#dce4f0" onclick="setColorHoja('#dce4f0',this)" title="Azul pálido"></div>
+            <div class="color-op" style="background:#e4e4f4" onclick="setColorHoja('#e4e4f4',this)" title="Lavanda"></div>
+            <div class="color-op" style="background:#ede0f4" onclick="setColorHoja('#ede0f4',this)" title="Lila suave"></div>
+            <div class="color-op" style="background:#f4e4e4" onclick="setColorHoja('#f4e4e4',this)" title="Rosa palo"></div>
+            <div class="color-op" style="background:#f4d4d4" onclick="setColorHoja('#f4d4d4',this)" title="Rosa intenso"></div>
+            <div class="color-op" style="background:#f4ecd4" onclick="setColorHoja('#f4ecd4',this)" title="Vainilla"></div>
+            <div class="color-op" style="background:#e0f4f4" onclick="setColorHoja('#e0f4f4',this)" title="Menta azulada"></div>
+            <div class="color-op" style="background:#2a2a2a" onclick="setColorHoja('#2a2a2a',this)" title="Negro pizarra"></div>
+            <div class="color-op" style="background:#1a1a2e" onclick="setColorHoja('#1a1a2e',this)" title="Noche azul"></div>
+            <div class="color-op" style="background:#1e2a1e" onclick="setColorHoja('#1e2a1e',this)" title="Noche verde"></div>
+            <div class="color-op" style="background:#2e1a1a" onclick="setColorHoja('#2e1a1a',this)" title="Granate"></div>
+            <div class="color-op" style="background:#1e1a2e" onclick="setColorHoja('#1e1a2e',this)" title="Índigo"></div>
+        </div>
+        <div class="p-sep"></div>
+        <span class="p-label">Líneas de la página</span>
+        <div class="lineas-grid">
+            <div class="lineas-op" id="lopLineal" onclick="setLineas('lineal',this)">
+                <div class="lineas-pre" id="lpLineal" style="background:#f4e4c1"><svg width="100%" height="28"><line x1="0" y1="9" x2="100%" y2="9" stroke="rgba(60,60,60,.3)" stroke-width="1"/><line x1="0" y1="18" x2="100%" y2="18" stroke="rgba(60,60,60,.3)" stroke-width="1"/><line x1="0" y1="27" x2="100%" y2="27" stroke="rgba(60,60,60,.3)" stroke-width="1"/></svg></div>
+                <div class="lineas-nom">Líneas</div>
+            </div>
+            <div class="lineas-op" id="lopCuad" onclick="setLineas('cuadricula',this)">
+                <div class="lineas-pre" id="lpCuad" style="background:#f4e4c1"><svg width="100%" height="28"><line x1="0" y1="9" x2="100%" y2="9" stroke="rgba(60,60,60,.28)" stroke-width="1"/><line x1="0" y1="18" x2="100%" y2="18" stroke="rgba(60,60,60,.28)" stroke-width="1"/><line x1="14" y1="0" x2="14" y2="28" stroke="rgba(60,60,60,.28)" stroke-width="1"/><line x1="28" y1="0" x2="28" y2="28" stroke="rgba(60,60,60,.28)" stroke-width="1"/><line x1="42" y1="0" x2="42" y2="28" stroke="rgba(60,60,60,.28)" stroke-width="1"/></svg></div>
+                <div class="lineas-nom">Cuadrícula</div>
+            </div>
+            <div class="lineas-op" id="lopPunto" onclick="setLineas('punteado',this)">
+                <div class="lineas-pre" id="lpPunto" style="background:#f4e4c1"><svg width="100%" height="28"><circle cx="8" cy="8" r="1.3" fill="rgba(60,60,60,.35)"/><circle cx="20" cy="8" r="1.3" fill="rgba(60,60,60,.35)"/><circle cx="32" cy="8" r="1.3" fill="rgba(60,60,60,.35)"/><circle cx="8" cy="20" r="1.3" fill="rgba(60,60,60,.35)"/><circle cx="20" cy="20" r="1.3" fill="rgba(60,60,60,.35)"/><circle cx="32" cy="20" r="1.3" fill="rgba(60,60,60,.35)"/></svg></div>
+                <div class="lineas-nom">Punteado</div>
+            </div>
+            <div class="lineas-op activo" id="lopNada" onclick="setLineas('',this)">
+                <div class="lineas-pre" id="lpNada" style="background:#f4e4c1"></div>
+                <div class="lineas-nom">Sin líneas</div>
+            </div>
+        </div>
+        <div class="p-sep"></div>
+        <span class="p-label">Fuente por defecto (nuevas páginas)</span>
+        <div class="fuente-grid">
+            <div class="fuente-op activo" onclick="setFuenteDef('Caveat',this)"><div class="fuente-pre" style="font-family:Caveat">Hola</div><div class="fuente-nom">Rotulador</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Dancing Script',this)"><div class="fuente-pre" style="font-family:'Dancing Script'">Hola</div><div class="fuente-nom">Caligrafía</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Indie Flower',this)"><div class="fuente-pre" style="font-family:'Indie Flower'">Hola</div><div class="fuente-nom">Manuscrita</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Permanent Marker',this)"><div class="fuente-pre" style="font-family:'Permanent Marker'">Hola</div><div class="fuente-nom">Marcador</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Special Elite',this)"><div class="fuente-pre" style="font-family:'Special Elite'">Hola</div><div class="fuente-nom">Máquina</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Courier Prime',this)"><div class="fuente-pre" style="font-family:'Courier Prime'">Hola</div><div class="fuente-nom">Courier</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Playfair Display',this)"><div class="fuente-pre" style="font-family:'Playfair Display'">Hola</div><div class="fuente-nom">Novela</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('IM Fell English',this)"><div class="fuente-pre" style="font-family:'IM Fell English'">Hola</div><div class="fuente-nom">Antigua</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Cinzel',this)"><div class="fuente-pre" style="font-family:Cinzel">Hola</div><div class="fuente-nom">Romana</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Lobster',this)"><div class="fuente-pre" style="font-family:Lobster">Hola</div><div class="fuente-nom">Lobster</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Satisfy',this)"><div class="fuente-pre" style="font-family:Satisfy">Hola</div><div class="fuente-nom">Satisfy</div></div>
+            <div class="fuente-op" onclick="setFuenteDef('Arial',this)"><div class="fuente-pre" style="font-family:Arial">Hola</div><div class="fuente-nom">Arial</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-cap" id="modalCap">
+    <div class="mcap-box">
+        <div class="mcap-titulo">Nuevo capítulo</div>
+        <div class="mcap-sub">El nombre de este capítulo. Se creará una página de presentación y empezará un nuevo bloque.</div>
+        <input type="text" class="mcap-input" id="inputCap" placeholder="Nombre del capítulo...">
+        <div class="mcap-btns">
+            <button class="btn-c1" onclick="cerrarModalCap()">Cancelar</button>
+            <button class="btn-c2" onclick="crearCapitulo()">Crear</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var E={idx:null,hojas:[],colorHoja:'#f4e4c1',lineas:'',fuenteDef:'Caveat',tamDef:16,tamPendiente:null,interlineado:1.4,panelAbierto:null};
+    var libros=JSON.parse(localStorage.getItem('dyn_libros')||'[]');
+    var tGuardado=null,edActivo=null;
+
+    function esOscuro(h){if(!h||h.length<7)return false;var r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return(r*299+g*587+b*114)/1000<128;}
+    function cTexto(f){return esOscuro(f)?'#f0e8d8':'#2a1208';}
+    function cNum(f){return esOscuro(f)?'rgba(240,224,200,.28)':'rgba(60,30,5,.3)';}
+
+    function applyHojaStyle(el,color,lineas){el.style.backgroundColor=color;el.style.backgroundImage='';el.style.backgroundSize='';el.style.backgroundPosition='';if(lineas==='lineal'){el.style.backgroundImage='repeating-linear-gradient(transparent,transparent 23px,rgba(60,60,60,.22) 23px,rgba(60,60,60,.22) 24px)';el.style.backgroundPosition='0 32px';}else if(lineas==='cuadricula'){el.style.backgroundImage='repeating-linear-gradient(rgba(60,60,60,.2) 0,rgba(60,60,60,.2) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,rgba(60,60,60,.2) 0,rgba(60,60,60,.2) 1px,transparent 1px,transparent 28px)';}else if(lineas==='punteado'){el.style.backgroundImage='radial-gradient(circle,rgba(60,60,60,.25) 1.1px,transparent 1.1px)';el.style.backgroundSize='16px 16px';el.style.backgroundPosition='8px 32px';}}
+    function estiloHojaCSS(color,lineas){var s='background-color:'+color+';';if(lineas==='lineal')s+='background-image:repeating-linear-gradient(transparent,transparent 23px,rgba(60,60,60,.22) 23px,rgba(60,60,60,.22) 24px);background-position:0 32px;';else if(lineas==='cuadricula')s+='background-image:repeating-linear-gradient(rgba(60,60,60,.2) 0,rgba(60,60,60,.2) 1px,transparent 1px,transparent 24px),repeating-linear-gradient(90deg,rgba(60,60,60,.2) 0,rgba(60,60,60,.2) 1px,transparent 1px,transparent 24px);';else if(lineas==='punteado')s+='background-image:radial-gradient(circle,rgba(60,60,60,.25) 1.1px,transparent 1.1px);background-size:16px 16px;background-position:8px 32px;';return s;}
+
+    function irPaso(cual){['paso1','pasoNuevo','pasoContinuar'].forEach(function(id){document.getElementById(id).style.display='none';});if(cual==='inicio'){document.getElementById('paso1').style.display='block';return;}if(cual==='nuevo'){document.getElementById('pasoNuevo').style.display='block';setTimeout(function(){document.getElementById('inputTitulo').focus();},80);}if(cual==='continuar'){document.getElementById('pasoContinuar').style.display='block';renderLibros();}}
+
+    function renderLibros(){
+        var c=document.getElementById('listaLibros');
+        var bdLibros=(typeof LIBROS_BD!=='undefined'&&LIBROS_BD)?LIBROS_BD:[];
+        bdLibros.forEach(function(bl){var existe=libros.some(function(l){return l.id===bl.id||l.titulo.trim().toLowerCase()===bl.titulo.trim().toLowerCase();});if(!existe){libros.push({id:bl.id,titulo:bl.titulo,hojas:[{tipo:'portada',contenido:''},{tipo:'normal',contenido:'',columnas:1}],colorHoja:'#f4e4c1',lineas:'',fuenteDef:'Caveat',tamDef:16});}});
+        var titulos=[];libros=libros.filter(function(l){var t=l.titulo.trim().toLowerCase();if(titulos.indexOf(t)!==-1)return false;titulos.push(t);return true;});
+        guardarLS();
+        if(!libros.length){c.innerHTML='<p style="font-size:13px;color:var(--muted);text-align:center;padding:16px 0;font-style:italic">No tienes libros guardados todavía.</p>';return;}
+        c.innerHTML=libros.map(function(l,i){var w=(l.hojas||[]).reduce(function(a,h){return a+(h.tipo==='normal'?(h.contenido||'').replace(/<[^>]*>/g,'').split(/\s+/).filter(Boolean).length:0);},0);return '<div class="libro-item" onclick="abrirLibro('+i+')"><span style="font-size:20px">📖</span><div><strong>'+l.titulo+'</strong><span>'+w+' palabras</span></div></div>';}).join('');
+    }
+
+    function crearLibro(){
+        var t=document.getElementById('inputTitulo').value.trim();
+        if(!t){document.getElementById('inputTitulo').focus();return;}
+        var err=document.getElementById('errorTitulo');if(err)err.style.display='none';
+        var fd=new URLSearchParams();fd.append('titulo',t);
+        fetch('/DayneiraApp/escribir/crear',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:fd.toString()})
+        .then(function(r){return r.json();})
+        .then(function(data){if(!data.ok){if(err){err.textContent=data.error;err.style.display='block';}document.getElementById('inputTitulo').focus();return;}var l={id:data.id,titulo:t,hojas:[{tipo:'portada',contenido:''},{tipo:'normal',contenido:'',columnas:1}],colorHoja:'#f4e4c1',lineas:'',fuenteDef:'Caveat',tamDef:16};libros.push(l);guardarLS();iniciar(libros.length-1);})
+        .catch(function(e){if(err){err.textContent='Error de conexión.';err.style.display='block';}console.error(e);});
+    }
+
+    function abrirLibro(i){iniciar(i);}
+    function iniciar(i){
+        var l=libros[i];
+        var hojas=l.hojas||[{tipo:'normal',contenido:'',columnas:1}];
+        if(!hojas.length||hojas[0].tipo!=='portada'){hojas.unshift({tipo:'portada',contenido:''});}
+        E.idx=i;E.hojas=hojas;
+        E.colorHoja=l.colorHoja||'#f4e4c1';
+        E.lineas=(l.lineas===undefined||l.lineas===null||l.lineas==='cuadricula'||l.lineas==='lineal')?'':l.lineas;
+        E.fuenteDef=l.fuenteDef||'Caveat';E.tamDef=l.tamDef||16;E.interlineado=l.interlineado||1.4;
+        document.getElementById('navTitulo').textContent=l.titulo;
+        document.getElementById('modalInicio').classList.add('oculto');
+        document.getElementById('appLayout').classList.add('visible');
+        document.getElementById('barraFmt').style.display='flex';
+        if(l.lineas===undefined||l.lineas===null||l.lineas==='cuadricula'||l.lineas==='lineal'){libros[i].lineas='';guardarLS();}
+        renderHojas();
+    }
+
+    function renderHojas(){
+        var c=document.getElementById('hojasCont');var sy=window.scrollY;c.innerHTML='';
+        E.hojas.forEach(function(h,i){var wrap=document.createElement('div');wrap.innerHTML=h.tipo==='portada'?buildPortada(h,i):(h.tipo==='capitulo'?buildCap(h,i):buildNormal(h,i));c.appendChild(wrap);});
+        document.querySelectorAll('.hoja-editor').forEach(function(el){
+            el.addEventListener('focus',function(){edActivo=this;var cols=E.hojas[+this.dataset.i].columnas||1;document.querySelectorAll('.bfmt-btn[data-col]').forEach(function(b){b.classList.remove('activo');});var ab=document.querySelector('.bfmt-btn[data-col="'+cols+'"]');if(ab)ab.classList.add('activo');});
+            el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();var sel=window.getSelection();if(!sel||!sel.rangeCount)return;var range=sel.getRangeAt(0);range.deleteContents();var br=document.createElement('br');range.insertNode(br);var after=document.createTextNode('\u200B');br.parentNode.insertBefore(after,br.nextSibling);range.setStartAfter(br);range.collapse(true);sel.removeAllRanges();sel.addRange(range);this.dispatchEvent(new Event('input',{bubbles:true}));}});
+            el.addEventListener('input',function(){var i=+this.dataset.i;E.hojas[i].contenido=this.innerHTML;programarGuardado();contarPalabras();setTimeout(function(){comprobarDesbord(i);},30);});
+        });
+        contarPalabras();window.scrollTo(0,sy);
+    }
+
+    function buildPortada(h,i){
+        var hs=estiloHojaCSS(E.colorHoja,E.lineas);
+        var ct=cTexto(E.colorHoja);
+        var nc=cNum(E.colorHoja);
+        return '<div class="hoja" id="h'+i+'" style="'+hs+'">'
+            +'<div class="hoja-num" style="color:'+nc+'">'+(i+1)+'</div>'
+            +'<div class="portada-inner" style="color:'+ct+'">'
+            +'<div class="portada-deco"></div>'
+            +'<div class="portada-label">Aquí va tu portada</div>'
+            +'<div class="portada-sub">No te precipites si aún no tienes una — las mejores portadas nacen cuando la historia ya está dentro de ti.</div>'
+            +'<a href="/DayneiraApp/dibujo/" class="portada-btn">+ Añadir portada</a>'
+            +'<div class="portada-deco"></div>'
+            +'</div></div>';
+    }
+
+    function buildNormal(h,i){
+        var hs=estiloHojaCSS(E.colorHoja,E.lineas);
+        var ct=cTexto(E.colorHoja);
+        var nc=cNum(E.colorHoja);
+        var cols=h.columnas||1;
+        var edSt='font-family:\''+E.fuenteDef+'\';font-size:'+E.tamDef+'px;color:'+ct+';'+(cols>1?'column-count:'+cols+';column-gap:28px;':'');
+        return '<div class="hoja" id="h'+i+'" style="'+hs+'">'
+            +'<div class="hoja-num" style="color:'+nc+'">'+(i+1)+'</div>'
+            +'<div class="hoja-editor" id="ed'+i+'" contenteditable="true" data-i="'+i+'" data-ph="Empieza a escribir..." style="'+edSt+'">'+(h.contenido||'')+'</div>'
+            +'</div>';
+    }
+
+    function buildCap(h,i){
+        var hs=estiloHojaCSS(E.colorHoja,E.lineas);
+        var ct=cTexto(E.colorHoja);
+        var nc=cNum(E.colorHoja);
+        return '<div class="hoja" id="h'+i+'" style="'+hs+'">'
+            +'<div class="hoja-num" style="color:'+nc+'">'+(i+1)+'</div>'
+            +'<div class="hoja-cap-inner">'
+            +'<div class="cap-label" style="color:'+ct+'">Capítulo</div>'
+            +'<div class="cap-deco" style="background:'+ct+'"></div>'
+            +'<div class="cap-nombre" style="font-family:\''+E.fuenteDef+'\';color:'+ct+'">'+h.nombreCapitulo+'</div>'
+            +'<div class="cap-deco" style="background:'+ct+'"></div>'
+            +'</div></div>';
+    }
+
+    function comprobarDesbord(i){var el=document.getElementById('ed'+i);if(!el)return;if(el.scrollHeight>el.offsetHeight+8){if(i===E.hojas.length-1||E.hojas[i+1].tipo==='capitulo'){E.hojas.push({tipo:'normal',contenido:'',columnas:1});renderHojas();setTimeout(function(){var s=document.getElementById('ed'+(i+1));if(s){s.focus();var r=document.createRange();r.selectNodeContents(s);r.collapse(true);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}},60);}}}
+
+    function fmt(cmd){document.execCommand(cmd,false,null);actualizarBtns();}
+    function fmtAlign(a){document.execCommand('justify'+a.charAt(0).toUpperCase()+a.slice(1),false,null);['bAL','bAC','bAR'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('activo');});var m={left:'bAL',center:'bAC',right:'bAR'};if(m[a])document.getElementById(m[a]).classList.add('activo');}
+
+    function aplicarFuente(f){
+        var sel=window.getSelection();
+        if(!sel||sel.isCollapsed){
+            var ed=edActivo||document.querySelector('.hoja-editor');
+            if(ed){ed.focus();document.execCommand('insertHTML',false,'<span id="fc" style="font-family:'+f+'">&#8203;</span>');var sp=document.getElementById('fc');if(sp){sp.removeAttribute('id');var r=document.createRange();r.setStart(sp.firstChild,1);r.collapse(true);sel=window.getSelection();sel.removeAllRanges();sel.addRange(r);}}
+        } else {
+            document.execCommand('fontName',false,f);
+        }
+        var bs=document.getElementById('bSelFuente');if(bs)bs.value=f;
+    }
+
+    function aplicarTamano(s){
+        var sel=window.getSelection();
+        if(!sel||sel.isCollapsed){
+            var ed=edActivo||document.querySelector('.hoja-editor');
+            if(ed){ed.focus();document.execCommand('insertHTML',false,'<span id="tc" style="font-size:'+s+'px">&#8203;</span>');var sp=document.getElementById('tc');if(sp){sp.removeAttribute('id');var r=document.createRange();r.setStart(sp.firstChild,1);r.collapse(true);sel.removeAllRanges();sel.addRange(r);}}
+            return;
+        }
+        document.execCommand('fontSize',false,'7');
+        document.querySelectorAll('font[size="7"]').forEach(function(el){el.removeAttribute('size');el.style.fontSize=s+'px';});
+        var el=document.getElementById('bSelTam');if(el)el.value=s;
+    }
+
+    function actualizarBtns(){
+        try{
+            ['bB','bI','bU'].forEach(function(id,_){var cmds=['bold','italic','underline'];var el=document.getElementById(id);if(el)el.classList.toggle('activo',document.queryCommandState(cmds[_]));});
+            var amap={left:'bAL',center:'bAC',right:'bAR'};
+            Object.keys(amap).forEach(function(a){var el=document.getElementById(amap[a]);if(el)el.classList.toggle('activo',document.queryCommandState('justify'+a.charAt(0).toUpperCase()+a.slice(1)));});
+            var fuente=document.queryCommandValue('fontName');
+            if(fuente){var sf=document.getElementById('bSelFuente');if(sf){for(var i=0;i<sf.options.length;i++){if(fuente.toLowerCase().indexOf(sf.options[i].value.toLowerCase())!==-1){sf.value=sf.options[i].value;break;}}}}
+            var sel=window.getSelection();
+            if(sel&&sel.anchorNode){var node=sel.anchorNode.nodeType===3?sel.anchorNode.parentElement:sel.anchorNode;if(node){var fs=window.getComputedStyle(node).fontSize;if(fs){var px=Math.round(parseFloat(fs));var st=document.getElementById('bSelTam');if(st){var best=null,bestDiff=999;for(var i=0;i<st.options.length;i++){var diff=Math.abs(+st.options[i].value-px);if(diff<bestDiff){bestDiff=diff;best=st.options[i].value;}}if(best)st.value=best;}}}}
+        }catch(e){}
+    }
+    document.addEventListener('selectionchange',actualizarBtns);
+
+    function setColumnas(n){var ed=edActivo||document.querySelector('.hoja-editor');if(!ed)return;var i=+ed.dataset.i;E.hojas[i].columnas=n;ed.style.columnCount=n>1?n:'';ed.style.columnGap=n>1?'28px':'';document.querySelectorAll('.bfmt-btn[data-col]').forEach(function(b){b.classList.remove('activo');});var ab=document.querySelector('.bfmt-btn[data-col="'+n+'"]');if(ab)ab.classList.add('activo');guardarEstado();}
+
+    function togglePanel(cual){if(E.panelAbierto===cual){cerrarPanel(cual);return;}if(E.panelAbierto)cerrarPanel(E.panelAbierto);var ids={personajes:'panelPersonajes',imagenes:'panelImagenes',personalizar:'panelPersonalizar'};if(!ids[cual])return;document.getElementById(ids[cual]).classList.add('visible');E.panelAbierto=cual;}
+    function cerrarPanel(cual){var ids={personajes:'panelPersonajes',imagenes:'panelImagenes',personalizar:'panelPersonalizar'};if(ids[cual])document.getElementById(ids[cual]).classList.remove('visible');if(E.panelAbierto===cual)E.panelAbierto=null;}
+
+    document.querySelectorAll('.nav-con-tip').forEach(function(el){el.addEventListener('mouseenter',function(){var t=this.querySelector('.ntip');if(t)t.style.display='block';});el.addEventListener('mouseleave',function(){var t=this.querySelector('.ntip');if(t)t.style.display='none';});});
+
+    function subirImg(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){var g=document.getElementById('gridImg');var d=document.createElement('div');d.className='img-thumb';d.style.backgroundImage='url('+ev.target.result+')';d.title='Clic para insertar';d.onclick=function(){insertarImg(ev.target.result);};g.appendChild(d);};r.readAsDataURL(f);}
+    function insertarImg(src){var ed=edActivo||document.querySelector('.hoja-editor');if(!ed)return;ed.focus();var img=document.createElement('img');img.src=src;img.style.maxWidth='100%';img.style.borderRadius='4px';img.style.margin='6px 0';img.style.display='block';var s=window.getSelection();if(s&&s.rangeCount){var rn=s.getRangeAt(0);rn.insertNode(img);rn.collapse(false);}else{ed.appendChild(img);}var i=+ed.dataset.i;E.hojas[i].contenido=ed.innerHTML;guardarEstado();}
+
+    function setColorHoja(c,btn){
+        E.colorHoja=c;
+        document.querySelectorAll('.color-op').forEach(function(o){o.classList.remove('activo');});btn.classList.add('activo');
+        var ct=cTexto(c),nc=cNum(c);
+        document.querySelectorAll('.hoja').forEach(function(el){applyHojaStyle(el,c,E.lineas);});
+        document.querySelectorAll('.hoja-num').forEach(function(el){el.style.color=nc;});
+        document.querySelectorAll('.hoja-editor').forEach(function(el){el.style.color=ct;});
+        document.querySelectorAll('.portada-inner').forEach(function(el){el.style.color=ct;});
+        document.querySelectorAll('.cap-nombre,.cap-label').forEach(function(el){el.style.color=ct;});
+        document.querySelectorAll('.cap-deco').forEach(function(el){el.style.background=ct;});
+        ['lpLineal','lpCuad','lpPunto','lpNada'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.background=c;});
+        guardarEstado();
+    }
+
+    function setLineas(tipo,btn){E.lineas=tipo;document.querySelectorAll('.lineas-op').forEach(function(o){o.classList.remove('activo');});btn.classList.add('activo');document.querySelectorAll('.hoja').forEach(function(el){applyHojaStyle(el,E.colorHoja,tipo);});guardarEstado();}
+    function setFuenteDef(f,btn){E.fuenteDef=f;document.querySelectorAll('.fuente-op').forEach(function(o){o.classList.remove('activo');});btn.classList.add('activo');document.querySelectorAll('.hoja-editor').forEach(function(el){el.style.fontFamily="'"+f+"'";E.hojas[+el.dataset.i].contenido=el.innerHTML;});document.querySelectorAll('.cap-nombre').forEach(function(el){el.style.fontFamily="'"+f+"'";});guardarEstado();}
+
+    function abrirModalCap(){document.getElementById('modalCap').classList.add('visible');document.getElementById('inputCap').value='';setTimeout(function(){document.getElementById('inputCap').focus();},80);}
+    function cerrarModalCap(){document.getElementById('modalCap').classList.remove('visible');}
+    function crearCapitulo(){var n=document.getElementById('inputCap').value.trim();if(!n){document.getElementById('inputCap').focus();return;}E.hojas.push({tipo:'capitulo',nombreCapitulo:n,contenido:''});E.hojas.push({tipo:'normal',contenido:'',columnas:1});cerrarModalCap();renderHojas();guardarEstado();setTimeout(function(){var hs=document.querySelectorAll('.hoja');if(hs.length>1)hs[hs.length-2].scrollIntoView({behavior:'smooth',block:'start'});},200);}
+    document.addEventListener('keydown',function(e){if(document.getElementById('modalCap').classList.contains('visible')){if(e.key==='Enter')crearCapitulo();if(e.key==='Escape')cerrarModalCap();}});
+    document.getElementById('inputTitulo').addEventListener('keydown',function(e){if(e.key==='Enter')crearLibro();});
+    document.getElementById('inputTitulo').addEventListener('input',function(){var err=document.getElementById('errorTitulo');if(err)err.style.display='none';});
+
+    function contarPalabras(){var w=E.hojas.reduce(function(a,h){return a+(h.tipo==='normal'?(h.contenido||'').replace(/<[^>]*>/g,'').split(/\s+/).filter(Boolean).length:0);},0);var el=document.getElementById('estadoGuardado');if(el.textContent.indexOf('Guardando')===-1&&el.textContent.indexOf('Guardado')!==-1){el.textContent='● Guardado · '+E.hojas.length+' pág · '+w+' palabras';}}
+    function programarGuardado(){var el=document.getElementById('estadoGuardado');el.textContent='● Guardando...';el.style.color='rgba(232,169,106,.6)';clearTimeout(tGuardado);tGuardado=setTimeout(guardarEstado,1500);}
+    function guardarEstado(){if(E.idx===null)return;libros[E.idx].hojas=E.hojas;libros[E.idx].colorHoja=E.colorHoja;libros[E.idx].lineas=E.lineas;libros[E.idx].fuenteDef=E.fuenteDef;libros[E.idx].tamDef=E.tamDef;libros[E.idx].interlineado=E.interlineado;guardarLS();var el=document.getElementById('estadoGuardado');el.textContent='● Guardado';el.style.color='rgba(232,213,183,.35)';contarPalabras();}
+    function guardarLS(){localStorage.setItem('dyn_libros',JSON.stringify(libros));}
+</script>
+
+<script th:inline="javascript">
+    var LIBROS_BD = /*[[${libros}]]*/ [];
+    var LIBRO_ID_DIRECTO = /*[[${libroIdDirecto != null ? libroIdDirecto : -1}]]*/ -1;
+</script>
+
+<script>
+    window.addEventListener('load', function() {
+        if (!LIBRO_ID_DIRECTO || LIBRO_ID_DIRECTO <= 0) return;
+        fetch('/DayneiraApp/mislibros/json')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                var bl=null;
+                for(var i=0;i<(data.libros||[]).length;i++){if(data.libros[i].id===LIBRO_ID_DIRECTO){bl=data.libros[i];break;}}
+                if(!bl) return;
+                var idx=-1,norm=bl.titulo.trim().toLowerCase();
+                for(var i=0;i<libros.length;i++){
+                    if(libros[i].id===LIBRO_ID_DIRECTO||(libros[i].titulo||'').trim().toLowerCase()===norm){
+                        idx=i;libros[idx].id=bl.id;guardarLS();break;
+                    }
+                }
+                if(idx===-1){var l={id:bl.id,titulo:bl.titulo,hojas:[{tipo:'portada',contenido:''},{tipo:'normal',contenido:'',columnas:1}],colorHoja:'#f4e4c1',lineas:'',fuenteDef:'Caveat',tamDef:16};libros.push(l);guardarLS();idx=libros.length-1;}
+                document.getElementById('modalInicio').classList.add('oculto');
+                iniciar(idx);
+            })
+            .catch(function(e){console.error(e);});
+    });
+</script>
+</body>
+</html>
